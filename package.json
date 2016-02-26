@@ -1,0 +1,33 @@
+{
+  "name": "contrast",
+  "version": "0.1.0",
+  "description": "A diff tool",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stewartlord/contrast.git"
+  },
+  "keywords": [
+    "Contrast",
+    "diff",
+    "electron"
+  ],
+  "author": "Stewart Lord",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stewartlord/contrast/issues"
+  },
+  "homepage": "https://github.com/stewartlord/contrast#readme",
+  "dependencies": {
+    "jquery": "^2.2.0",
+    "bootstrap": "^3.3.6",
+    "highlights": "^1.3.1",
+    "diff": "^2.2.1"
+  },
+  "devDependencies": {
+    "electron-prebuilt": "^0.36.0"
+  }
+}

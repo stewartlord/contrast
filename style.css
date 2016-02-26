@@ -1,0 +1,67 @@
+body {
+  margin: 0;
+  font-size: 16px;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;
+  background: #111;
+}
+.file {
+  box-sizing: border-box;
+  width: 48.5%;
+  padding: 2px 0;
+  float: left;
+}
+.file-left {
+  border-right: 1px solid #444;
+}
+.file-right {
+  border-left: 1px solid #444;
+}
+.file .file-contents {
+  position: relative;
+  color: #fff;
+  /*-webkit-transition: top 0.5s;*/
+}
+.file .file-contents pre {
+  margin: 0;
+  overflow-x: scroll;
+  background-color: #1d1f21;
+}
+.line {
+  height: 18px;
+  padding: 0 2px;
+}
+.line.delete {
+  background-color: rgba(255, 96, 96, .2);
+}
+.line.add {
+  background-color: rgba(96, 255, 96, .2);
+}
+.line.edit {
+  background-color: rgba(96, 96, 255, .2);
+}
+
+.gutter {
+  position: relative;
+  float: left;
+  width: 3%;
+  height: 1px;
+  margin: 2px 0;
+}
+.gutter svg {
+  position: absolute;
+  width: 100%;
+  /*-webkit-transition: top 0.5s;*/
+}
+.gutter .delete {
+  fill: rgba(255, 96, 96, .25);
+}
+.gutter .add {
+  fill: rgba(96, 255, 96, .25);
+}
+.gutter .edit {
+  fill: rgba(96, 96, 255, .25);
+}
+
+.focal-line {
+  background-color: rgba(255,255,255, .5) !important;
+}
