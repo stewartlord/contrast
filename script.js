@@ -178,52 +178,55 @@ $(function(){
   loadDiff(left, right);
 
   $(window).on('scroll', function(e){
-    var scrollTop    = $(window).scrollTop();
-    var lineHeight   = getLineHeight();
-    var subLineTop   = 0;//scrollTop % lineHeight;
-    var focalPoint   = Math.floor($(window).height() / 4);
-    var lineNumber   = Math.round((scrollTop + focalPoint) / lineHeight);
-    var focalLine    = $('div.line').eq(lineNumber);
-    var prevChange   = focalLine.prevAll('.change').first();
-    var nextChange   = focalLine.nextAll('.change').first();
-    var siblings     = focalLine[0].parentNode.children;
-    var focalIndex   = [].indexOf.call(siblings, focalLine[0]);
-    var prevDistance = focalIndex - [].indexOf.call(siblings, prevChange[0]);
-    var nextDistance = [].indexOf.call(siblings, nextChange[0]) - focalIndex;
-    var focalChange  = nextChange; //prevDistance < nextDistance ? prevChange : nextChange;
-    focalChange      = focalLine.is('.change') ? focalLine : focalChange;
+    // align changes when they scroll to a point 1/3 of the way down the window
+    // find the line that corresponds to this point based on line-height
+    var scrollTop   = $(window).scrollTop(),
+        lineHeight  = getLineHeight(),
+        focalPoint  = Math.floor($(window).height() / 3) + scrollTop,
+        lineNumber  = Math.floor(focalPoint / lineHeight),
+        focalLine   = $('div.line').eq(lineNumber);
 
-    if (!focalChange.length) {
-      return;
-    }
-//console.log(subLineTop);
-    var change       = focalChange.attr('class').match(/change\-[0-9]+/)[0];
-    var leftChange   = $('.file-left .'  + change);
-    var rightChange  = $('.file-right .' + change);
+    // now that we have the focal line, use that to find the bracketing changes
+    var prevChange  = focalLine.is('.change') ? focalLine : focalLine.prevAll('.change').first(),
+        nextChange  = focalLine.nextAll('.change').first(),
+        prevTop     = prevChange.offset().top,
+        nextTop     = nextChange.offset().top;
 
+    var prevChangeClass = prevChange.attr('class').match(/change\-[0-9]+/)[0],
+        prevLeftChange  = $('.file-left .'  + prevChangeClass),
+        prevRightChange = $('.file-right .' + prevChangeClass),
+        prevLeftTop     = prevLeftChange.position().top,
+        prevRightTop    = prevRightChange.position().top,
+        prevOffset      = prevLeftTop - prevRightTop;
 
-    var leftTop  = leftChange.position().top;
-    var rightTop = rightChange.position().top;
+    var nextChangeClass = nextChange.attr('class').match(/change\-[0-9]+/)[0],
+        nextLeftChange  = $('.file-left .'  + nextChangeClass),
+        nextRightChange = $('.file-right .' + nextChangeClass),
+        nextLeftTop     = nextLeftChange.position().top,
+        nextRightTop    = nextRightChange.position().top,
+        nextOffset      = nextLeftTop - nextRightTop;
 
-    var prevTop = prevChange.position().top;
-    var nextTop = nextChange.position().top;
-//    var nextTop = nextChange.position().top;
-    var creep   = scrollTop - prevTop;
+    // how far have we scrolled between these two changes in %
+    // snap focal point when within close proximity to a change
+    // !!! doesn't work for adds or edits from small change to big change
+    focalPoint  = focalPoint - prevTop    <= 3 ? prevTop : focalPoint;
+    focalPoint  = nextTop    - focalPoint <= 3 ? nextTop : focalPoint;
+    var percent = (focalPoint - prevTop) / (nextTop - prevTop);
 
-    var percentage = (scrollTop + focalPoint - prevTop) / (nextTop - prevTop);
-//console.log(percentage);
-    var rightPane = $('.file-right .file-contents');
-    var newTop    = (leftTop - rightTop); // * percentage;
-    // if ((scrollTop + focalPoint) > leftTop) {
-    //   newTop += scrollTop + focalPoint - leftTop;
-    // };
-    rightPane.css('top', newTop + 'px');
+    // slide between the two offsets using percent to combine them
+    var offset = (prevOffset * (1-percent)) + (nextOffset * percent);
+    $('.file-right .file-contents').css('top', offset + 'px');
 
-// console.log(leftTop, rightTop, prevTop, scrollTop + focalPoint);
-
-// $('.focal-line').removeClass('focal-line');
-// focalLine.addClass('focal-line');
-
+    // redraw connecting svgs
     updateBridges();
+
+    // debug decoration
+    // $('.focal-point').css('top', focalPoint);
+    // $('.focal-line').removeClass('focal-line');
+    // focalLine.addClass('focal-line');
+    // $('.prev-change').removeClass('prev-change');
+    // prevChange.addClass('prev-change');
+    // $('.next-change').removeClass('next-change');
+    // nextChange.addClass('next-change');
   });
 });
