@@ -10,8 +10,8 @@ This is a work in progress. This is very very early in development.
 
 ## To Do
 
-- Make magic scrolling smooth (currently snaps)
+- Clean-up code (now that we scroll smoothly)
 - Take files to diff as command arguments
-- Everything
+- Everything else
 
 #### License [MIT](LICENSE)
