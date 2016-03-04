@@ -42,7 +42,7 @@ function loadDiff(left, right) {
         $(linesRight.get(lineRight)).addClass('change-' + i);
 
         // bridge the gap
-        drawBridge(changes[i], changes[i+1], lineLeft, lineRight, 0);
+        drawBridge(changes[i], changes[i+1], lineLeft, lineRight, 0, 0);
 
         lineLeft += count;
 
@@ -59,7 +59,7 @@ function loadDiff(left, right) {
 
         // bridge the gap
         if (!isEdit) {
-          drawBridge(changes[i-1], changes[i], lineLeft, lineRight, 0);
+          drawBridge(changes[i-1], changes[i], lineLeft, lineRight, 0, 0);
         }
 
         lineRight += count;
@@ -115,8 +115,9 @@ function loadDiff(left, right) {
       rightSize = chunk.delete ? 0 : chunk.right.count;
 
       var align = {
-        left:  { prev: leftLine,  next: leftLine  + leftSize },
-        right: { prev: rightLine, next: rightLine + rightSize }
+        left:   { first: leftLine,   last: leftLine   + leftSize,   size: leftSize },
+        right:  { first: rightLine,  last: rightLine  + rightSize,  size: rightSize },
+        gutter: { first: gutterLine, last: gutterLine + chunk.size, size: chunk.size }
       };
       for (var j = 0; j < chunk.size; j++) {
         alignByLine[gutterLine + j] = align;
@@ -157,7 +158,7 @@ function loadFile(file, container) {
   });
 }
 
-function drawBridge(changeLeft, changeRight, lineLeft, lineRight, skew, bridge) {
+function drawBridge(changeLeft, changeRight, lineLeft, lineRight, leftSkew, rightSkew, bridge) {
   // if bridge is given we are re-drawing an existing bridge
   // otherwise we need to make the bridge
   if (bridge) {
@@ -177,7 +178,7 @@ function drawBridge(changeLeft, changeRight, lineLeft, lineRight, skew, bridge) 
   // adjust lineLeft/Right to account for skew (scroll alignment)
   var lineHeight  = getLineHeight();
 // if (lineHeight !== 18) console.log(lineHeight);
-console.log(skew);
+//console.log(skew);
   var action      = changeLeft.removed && changeRight.added ? 'edit' : (changeLeft.removed ? 'delete' : 'add');
   // var offsetLeft  = (lineLeft  - lineRight) * lineHeight;
   // var offsetRight = ((lineRight - lineLeft) * lineHeight) + skew;
@@ -190,8 +191,8 @@ console.log(skew);
 
   // we need four points to draw the bridge
   // begin by assuming the canvas is the size of the gutter
-  var leftTop     = (lineLeft * lineHeight),
-      rightTop    = (lineRight * lineHeight) + skew,
+  var leftTop     = (lineLeft * lineHeight)  + leftSkew,
+      rightTop    = (lineRight * lineHeight) + rightSkew,
       rightBottom = rightTop + rightHeight,
       leftBottom  = leftTop  + leftHeight,
       top         = Math.min(leftTop, rightTop),
@@ -221,17 +222,20 @@ console.log(skew);
     .attr('points', points.join(' '));
 }
 
-var lastSkew = 0;
+var lastLeftSkew = 0, lastRightSkew;
 function updateBridges() {
-  var skew = $('.file-right .file-contents').get(0).style.top;
-  skew     = skew ? parseInt(skew, 10) : 0;
-  if (skew === lastSkew) return;
+  var leftSkew  = $('.file-left .file-contents').get(0).style.top;
+  leftSkew      = leftSkew ? parseInt(leftSkew, 10) : 0;
+  var rightSkew = $('.file-right .file-contents').get(0).style.top;
+  rightSkew     = rightSkew ? parseInt(rightSkew, 10) : 0;
+  if (leftSkew === lastLeftSkew && rightSkew === lastRightSkew) return;
 
   $('.bridge').each(function(){
-    drawBridge(null, null, null, null, skew, $(this));
+    drawBridge(null, null, null, null, leftSkew, rightSkew, $(this));
   });
 
-  lastSkew = skew;
+  lastLeftSkew  = leftSkew;
+  lastRightSkew = rightSkew;
 }
 
 $(function(){
@@ -240,24 +244,37 @@ $(function(){
   $(window).on('scroll', function(e){
     // align changes when they scroll to a point 1/3 of the way down the window
     // find the line that corresponds to this point based on line-height
-    var scrollTop   = $(window).scrollTop(),
-        lineHeight  = getLineHeight(),
-        focalPoint  = Math.floor($(window).height() / 3) + scrollTop,
-        lineNumber  = Math.floor(focalPoint / lineHeight);
+    var scrollTop  = $(window).scrollTop(),
+        lineHeight = getLineHeight(),
+        focalPoint = Math.floor($(window).height() / 3) + scrollTop,
+        focalLine  = Math.floor(focalPoint / lineHeight);
 
+    // $('.focal-point').css('top', focalPoint);
 
-    $('.focal-point').css('top', focalPoint);
+    var align = alignByLine[focalLine];
+    // $('.file .prev-change, .file .next-change').removeClass('prev-change next-change');
+    // $('.file-left  .line:nth-child(' + align.left.first  + ')').addClass('prev-change');
+    // $('.file-left  .line:nth-child(' + align.left.last   + ')').addClass('next-change');
+    // $('.file-right .line:nth-child(' + align.right.first + ')').addClass('prev-change');
+    // $('.file-right .line:nth-child(' + align.right.last  + ')').addClass('next-change');
 
-    var align = alignByLine[lineNumber];
-    $('.file .prev-change, .file .next-change').removeClass('prev-change next-change');
-    $('.file-left  .line:nth-child(' + align.left.prev  + ')').addClass('prev-change');
-    $('.file-left  .line:nth-child(' + align.left.next  + ')').addClass('next-change');
-    $('.file-right .line:nth-child(' + align.right.prev + ')').addClass('prev-change');
-    $('.file-right .line:nth-child(' + align.right.next + ')').addClass('next-change');
+    // line-up first line in each chunk
+    var leftOffset  = (align.gutter.first - align.left.first)  * lineHeight;
+    var rightOffset = (align.gutter.first - align.right.first) * lineHeight;
+
+    // what percentage of the way through this chunk are we?
+    var percent = ((focalPoint/lineHeight) - align.gutter.first) / align.gutter.size;
+
+    // the smaller diff chunk should get pushed down
+    leftOffset  += percent * (align.gutter.size - align.left.size)  * lineHeight;
+    rightOffset += percent * (align.gutter.size - align.right.size) * lineHeight;
+
+    $('.file-left .file-contents').css('top',  leftOffset  + 'px');
+    $('.file-right .file-contents').css('top', rightOffset + 'px');
 
     // slide between the two offsets using percent to combine them
-    var offset = (align.left.prev * lineHeight) - (align.right.prev * lineHeight);
-    $('.file-right .file-contents').css('top', offset + 'px');
+    // var offset = (align.left.first * lineHeight) - (align.right.first * lineHeight);
+    // offset = offset / 2;
 
     // redraw connecting svgs
     updateBridges();
