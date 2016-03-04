@@ -158,7 +158,7 @@ function loadFile(file, container) {
   });
 }
 
-function drawBridge(changeLeft, changeRight, lineLeft, lineRight, leftSkew, rightSkew, bridge) {
+function drawBridge(changeLeft, changeRight, lineLeft, lineRight, leftOffset, rightOffset, bridge) {
   // if bridge is given we are re-drawing an existing bridge
   // otherwise we need to make the bridge
   if (bridge) {
@@ -175,24 +175,18 @@ function drawBridge(changeLeft, changeRight, lineLeft, lineRight, leftSkew, righ
       .data('lineRight',   lineRight);
   }
 
-  // adjust lineLeft/Right to account for skew (scroll alignment)
+  // adjust lineLeft/Right to account for offset (scroll alignment)
   var lineHeight  = getLineHeight();
-// if (lineHeight !== 18) console.log(lineHeight);
-//console.log(skew);
   var action      = changeLeft.removed && changeRight.added ? 'edit' : (changeLeft.removed ? 'delete' : 'add');
-  // var offsetLeft  = (lineLeft  - lineRight) * lineHeight;
-  // var offsetRight = ((lineRight - lineLeft) * lineHeight) + skew;
   var leftHeight  = changeLeft.removed ? (changeLeft.count  * lineHeight) : 0;
   var rightHeight = changeRight.added  ? (changeRight.count * lineHeight) : 0;
-  // var height      = Math.max(leftHeight + offsetLeft, rightHeight + offsetRight);
 
   var top, leftTop, leftBottom, rightTop, rightBottom;
 
-
   // we need four points to draw the bridge
   // begin by assuming the canvas is the size of the gutter
-  var leftTop     = (lineLeft * lineHeight)  + leftSkew,
-      rightTop    = (lineRight * lineHeight) + rightSkew,
+  var leftTop     = (lineLeft * lineHeight)  + leftOffset,
+      rightTop    = (lineRight * lineHeight) + rightOffset,
       rightBottom = rightTop + rightHeight,
       leftBottom  = leftTop  + leftHeight,
       top         = Math.min(leftTop, rightTop),
@@ -222,20 +216,16 @@ function drawBridge(changeLeft, changeRight, lineLeft, lineRight, leftSkew, righ
     .attr('points', points.join(' '));
 }
 
-var lastLeftSkew = 0, lastRightSkew;
-function updateBridges() {
-  var leftSkew  = $('.file-left .file-contents').get(0).style.top;
-  leftSkew      = leftSkew ? parseInt(leftSkew, 10) : 0;
-  var rightSkew = $('.file-right .file-contents').get(0).style.top;
-  rightSkew     = rightSkew ? parseInt(rightSkew, 10) : 0;
-  if (leftSkew === lastLeftSkew && rightSkew === lastRightSkew) return;
+var lastLeftOffset  = 0, lastRightOffset = 0;
+function updateBridges(leftOffset, rightOffset) {
+  if (leftOffset === lastLeftOffset && rightOffset === lastRightOffset) return;
 
   $('.bridge').each(function(){
-    drawBridge(null, null, null, null, leftSkew, rightSkew, $(this));
+    drawBridge(null, null, null, null, leftOffset, rightOffset, $(this));
   });
 
-  lastLeftSkew  = leftSkew;
-  lastRightSkew = rightSkew;
+  lastLeftOffset  = leftOffset;
+  lastRightOffset = rightOffset;
 }
 
 $(function(){
@@ -244,113 +234,26 @@ $(function(){
   $(window).on('scroll', function(e){
     // align changes when they scroll to a point 1/3 of the way down the window
     // find the line that corresponds to this point based on line-height
-    var scrollTop  = $(window).scrollTop(),
-        lineHeight = getLineHeight(),
-        focalPoint = Math.floor($(window).height() / 3) + scrollTop,
-        focalLine  = Math.floor(focalPoint / lineHeight);
-
-    // $('.focal-point').css('top', focalPoint);
-
-    var align = alignByLine[focalLine];
-    // $('.file .prev-change, .file .next-change').removeClass('prev-change next-change');
-    // $('.file-left  .line:nth-child(' + align.left.first  + ')').addClass('prev-change');
-    // $('.file-left  .line:nth-child(' + align.left.last   + ')').addClass('next-change');
-    // $('.file-right .line:nth-child(' + align.right.first + ')').addClass('prev-change');
-    // $('.file-right .line:nth-child(' + align.right.last  + ')').addClass('next-change');
+    var scrollTop   = $(window).scrollTop(),
+        lineHeight  = getLineHeight(),
+        focalPoint  = Math.floor($(window).height() / 3) + scrollTop,
+        focalLine   = Math.floor(focalPoint / lineHeight);
 
     // line-up first line in each chunk
-    var leftOffset  = (align.gutter.first - align.left.first)  * lineHeight;
-    var rightOffset = (align.gutter.first - align.right.first) * lineHeight;
+    var align       = alignByLine[focalLine],
+        leftOffset  = (align.gutter.first - align.left.first)  * lineHeight,
+        rightOffset = (align.gutter.first - align.right.first) * lineHeight;
 
     // what percentage of the way through this chunk are we?
-    var percent = ((focalPoint/lineHeight) - align.gutter.first) / align.gutter.size;
+    // the smaller side should get edged down by % of it's deficit
+    var percent     = ((focalPoint/lineHeight) - align.gutter.first) / align.gutter.size;
+    leftOffset     += percent * (align.gutter.size - align.left.size)  * lineHeight;
+    rightOffset    += percent * (align.gutter.size - align.right.size) * lineHeight;
 
-    // the smaller diff chunk should get pushed down
-    leftOffset  += percent * (align.gutter.size - align.left.size)  * lineHeight;
-    rightOffset += percent * (align.gutter.size - align.right.size) * lineHeight;
-
-    $('.file-left .file-contents').css('top',  leftOffset  + 'px');
+    $('.file-left  .file-contents').css('top', leftOffset  + 'px');
     $('.file-right .file-contents').css('top', rightOffset + 'px');
 
-    // slide between the two offsets using percent to combine them
-    // var offset = (align.left.first * lineHeight) - (align.right.first * lineHeight);
-    // offset = offset / 2;
-
     // redraw connecting svgs
-    updateBridges();
-
-//
-//
-//         focalLine   = $('div.line').eq(lineNumber);
-//
-//   // **************
-//   // the problem at the moment is that we pick focal line based solely on the
-//   // left pane and without accounting for the offset of the left pane
-//
-//     // now that we have the focal line, use that to find the bracketing
-//     // changes and their positions for both the left and right panes
-//     // @todo need to special case scrolling to the top when there are changes
-//     // above the focal line
-//     var prevChange      = focalLine.is('.change') ? focalLine : focalLine.prevAll('.change').first(),
-//         prevChangeClass = prevChange.attr('class').match(/change\-[0-9]+/)[0],
-//         prevLeftChange  = $('.file-left .'  + prevChangeClass),
-//         prevRightChange = $('.file-right .' + prevChangeClass),
-//         prevLeftTop     = prevLeftChange.position().top,
-//         prevRightTop    = prevRightChange.position().top,
-//         prevOffset      = prevLeftTop - prevRightTop;
-//
-//     var nextChange      = focalLine.nextAll('.change').first(),
-//         nextChangeClass = nextChange.attr('class').match(/change\-[0-9]+/)[0],
-//         nextLeftChange  = $('.file-left .'  + nextChangeClass),
-//         nextRightChange = $('.file-right .' + nextChangeClass),
-//         nextLeftTop     = nextLeftChange.position().top,
-//         nextRightTop    = nextRightChange.position().top,
-//         nextOffset      = nextLeftTop - nextRightTop;
-//
-//     // pick the larger of the left vs. right chunk to scroll through
-//     var side = nextLeftTop - prevLeftTop >= nextRightTop - prevRightTop ? 'left' : 'right';
-//
-//     // how far have we scrolled between these two changes in %
-//     var snap = 5;
-//     if (side === 'left') {
-//       focalPoint  = focalPoint  - prevLeftTop <= snap ? prevLeftTop : focalPoint;
-//       focalPoint  = nextLeftTop - focalPoint  <= snap ? nextLeftTop : focalPoint;
-//       var percent = (focalPoint - prevLeftTop) / (nextLeftTop - prevLeftTop);
-//
-//       var offset = (prevOffset * (1-percent)) + (nextOffset * percent);
-//   //    $('.file-right .file-contents').css('top', offset + 'px');
-//       // $('.file-left .file-contents').css('top', '0px');
-//     } else {
-//       focalPoint  = focalPoint   - prevRightTop <= snap ? prevRightTop : focalPoint;
-//       focalPoint  = nextRightTop - focalPoint   <= snap ? nextRightTop : focalPoint;
-//       var percent = (focalPoint  - prevRightTop) / (nextRightTop - prevRightTop);
-//
-//       var offset = (prevOffset * (1-percent)) + (nextOffset * percent);
-// //      $('.file-left .file-contents').css('top', offset + 'px');
-//       // $('.file-right .file-contents').css('top', '0px');
-//     }
-//
-//     // how far have we scrolled between these two changes in %
-//     // snap focal point when within close proximity to a change
-//     // !!! doesn't work for adds or edits from small change to big change
-//     // focalPoint  = focalPoint - prevTop    <= 3 ? prevTop : focalPoint;
-//     // focalPoint  = nextTop    - focalPoint <= 3 ? nextTop : focalPoint;
-//     // var percent = (focalPoint - prevTop) / (nextTop - prevTop);
-//
-//     // slide between the two offsets using percent to combine them
-//     // var offset = (prevOffset * (1-percent)) + (nextOffset * percent);
-//     // $('.file-right .file-contents').css('top', offset + 'px');
-//
-//     // redraw connecting svgs
-//     updateBridges();
-//
-//     // debug decoration
-//     $('.focal-point').css('top', focalPoint);
-//     $('.focal-line').removeClass('focal-line');
-//     focalLine.addClass('focal-line');
-//     $('.prev-change').removeClass('prev-change');
-//     prevChange.addClass('prev-change');
-//     $('.next-change').removeClass('next-change');
-//     nextChange.addClass('next-change');
+    updateBridges(leftOffset, rightOffset);
   });
 });

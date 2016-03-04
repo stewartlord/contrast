@@ -57,19 +57,3 @@ body {
 .gutter .edit {
   fill: rgba(96, 96, 255, .25);
 }
-
-/*.focal-line {
-  background-color: rgba(255,255,255, .5) !important;
-}*/
-.prev-change {
-  background-color: rgba(0,0,255, .5) !important;
-}
-.next-change {
-  background-color: rgba(255,0,0, .5) !important;
-}
-.focal-point {
-  position: absolute;
-  border-top: 1px solid #fff;
-  width: 100%;
-  z-index:10;
-}
