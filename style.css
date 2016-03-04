@@ -1,4 +1,5 @@
 body {
+  display: flex;
   margin: 0;
   font-size: 16px;
   font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;
@@ -6,9 +7,9 @@ body {
 }
 .file {
   box-sizing: border-box;
-  width: 48.5%;
   padding: 2px 0;
-  float: left;
+  background-color: #1d1f21;
+  overflow-x: scroll;
 }
 .file-left {
   border-right: 1px solid #444;
@@ -17,13 +18,12 @@ body {
   border-left: 1px solid #444;
 }
 .file .file-contents {
+  display: flex;
   position: relative;
   color: #fff;
 }
 .file .file-contents pre {
   margin: 0;
-  overflow-x: scroll;
-  background-color: #1d1f21;
 }
 .line {
   height: 18px;
@@ -41,9 +41,7 @@ body {
 
 .gutter {
   position: relative;
-  float: left;
-  width: 3%;
-  height: 1px;
+  min-width: 3%;
   margin: 2px 0;
 }
 .gutter svg {
@@ -62,7 +60,7 @@ body {
 
 /*.focal-line {
   background-color: rgba(255,255,255, .5) !important;
-}
+}*/
 .prev-change {
   background-color: rgba(0,0,255, .5) !important;
 }
@@ -74,4 +72,4 @@ body {
   border-top: 1px solid #fff;
   width: 100%;
   z-index:10;
-}*/
+}
