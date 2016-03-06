@@ -8,7 +8,7 @@ path        = require('path');
 var left  = __dirname + '/sample-left.js';
 var right = __dirname + '/sample-right.js';
 
-var alignByLine = [];
+var chunksByLine = [];
 function loadDiff(left, right) {
   $('title').text(path.basename(left) + ' - ' + path.basename(right));
 
@@ -16,69 +16,12 @@ function loadDiff(left, right) {
     loadFile(left,  $('.file-left .file-contents')),
     loadFile(right, $('.file-right .file-contents'))
   ]).then(function(values) {
-    var i           = 0,
-        count       = 0,
-        lineLeft    = 0,
-        lineRight   = 0,
-        isEdit      = false,
-        changes     = diff.diffLines(values[0], values[1]),
-        linesLeft   = $('.file-left  .file-contents div.line'),
-        linesRight  = $('.file-right .file-contents div.line'),
-        chunkSize   = 0;
-        gutterLines = 0;
-
-    for (i = 0; i < changes.length; i++) {
-      count = changes[i].count;
-
-      // handle deletes
-      if (changes[i].removed) {
-        isEdit = Boolean(i+1 < changes.length && changes[i+1].added);
-
-        $(linesLeft.slice(lineLeft, lineLeft + count))
-          .addClass('delete').toggleClass('edit', isEdit);
-
-        // pair-up left/right changes
-        $(linesLeft.get(lineLeft)).addClass('change change-' + i + ' line-' + lineLeft);
-        $(linesRight.get(lineRight)).addClass('change-' + i);
-
-        // bridge the gap
-        drawBridge(changes[i], changes[i+1], lineLeft, lineRight, 0, 0);
-
-        lineLeft += count;
-
-      // handle adds
-      } else if (changes[i].added) {
-        isEdit = Boolean(i > 0 && changes[i-1].removed);
-
-        $(linesRight.slice(lineRight, lineRight + count))
-          .addClass('add').toggleClass('edit', isEdit);
-
-        // pair-up left/right changes
-        $(linesRight.get(lineRight)).addClass('change change-' + i);
-        $(linesLeft.get(lineLeft - (isEdit ? changes[i-1].count : 0))).addClass('change-' + i);
-
-        // bridge the gap
-        if (!isEdit) {
-          drawBridge(changes[i-1], changes[i], lineLeft, lineRight, 0, 0);
-        }
-
-        lineRight += count;
-
-      // handle same
-      } else {
-        isEdit = false;
-
-        // pair-up left/right changes
-        $([linesLeft.get(lineLeft), linesRight.get(lineRight)])
-          .addClass('change change-' + i);
-
-        lineLeft  += count;
-        lineRight += count;
-      }
-    }
+    var i,
+        isEdit  = false,
+        chunks  = [];
+        changes = diff.diffLines(values[0], values[1]);
 
     // make a pass through changes to pair up edits
-    var chunks = [];
     for (i = 0; i < changes.length; i++) {
       isEdit = changes[i].removed && i < changes.length && changes[i+1].added;
 
@@ -86,6 +29,8 @@ function loadDiff(left, right) {
         edit:   isEdit,
         add:    isEdit ? false : changes[i].added,
         delete: isEdit ? false : changes[i].removed,
+        same:   changes[i].added || changes[i].removed ? false : true,
+        action: isEdit ? 'edit' : (changes[i].added ? 'add' : (changes[i].removed ? 'delete' : 'same')),
         left:   changes[i],
         right:  isEdit ? changes[i+1] : changes[i],
         size:   isEdit ? Math.max(changes[i].count, changes[i+1].count) : changes[i].count
@@ -95,17 +40,23 @@ function loadDiff(left, right) {
       if (isEdit) i++;
     }
 
-    // if you were to take the tallest side of each diff chunk and stack
-    // them on top of each other, that is how tall we want the gutter to be
-    // that way you can scroll through the gutter and smoothly scroll past
-    // every line in every diff chunk
-    // for a given a 'gutter' line number we want to be able to quickly lookup
-    // the left/right line numbers that we should be trying to align when
-    // scrolled to the top of the chunk vs the bottom of the chunk
+    // process the diff chunks now that we've paired up edits:
+    //  - if you were to take the tallest side of each diff chunk and stack
+    //    them on top of each other, that is how tall we want the gutter to be
+    //    that way you can scroll through the gutter and smoothly scroll past
+    //    every line in every diff chunk
+    //  - for any given 'gutter' line number we want to be able to quickly
+    //    lookup the chunk and left/right line numbers that we should be
+    //    trying to align when scrolled to the top or bottom of the chunk
+    //  - identify changed lines with action-add/edit/delete
+    //  - draw connecting svg 'bridges' between the left and right side
     var chunk       = null,
+        chunkSize   = 0,
         gutterLine  = 0,
+        leftLines   = $('.file-left div.line'),
         leftLine    = 0,
         leftSize    = 0,
+        rightLines  = $('.file-right div.line'),
         rightLine   = 0,
         rightSize   = 0;
 
@@ -113,21 +64,34 @@ function loadDiff(left, right) {
       chunk     = chunks[i];
       leftSize  = chunk.add    ? 0 : chunk.left.count;
       rightSize = chunk.delete ? 0 : chunk.right.count;
+      chunkSize = chunk.size;
 
-      var align = {
-        left:   { first: leftLine,   last: leftLine   + leftSize,   size: leftSize },
-        right:  { first: rightLine,  last: rightLine  + rightSize,  size: rightSize },
-        gutter: { first: gutterLine, last: gutterLine + chunk.size, size: chunk.size }
+      // prepare line-based alignment data and index by gutter line number
+      chunk.align = {
+        left:   { first: leftLine,   last: leftLine   + leftSize,  size: leftSize },
+        right:  { first: rightLine,  last: rightLine  + rightSize, size: rightSize },
+        gutter: { first: gutterLine, last: gutterLine + chunkSize, size: chunkSize }
       };
       for (var j = 0; j < chunk.size; j++) {
-        alignByLine[gutterLine + j] = align;
+        chunksByLine[gutterLine + j] = chunk;
+      }
+
+      // tag changed lines with add/edit/delete action classes
+      // and draw connection between the left and right hand side
+      if (!chunk.same) {
+        $(leftLines.slice(leftLine, leftLine + leftSize))
+          .addClass('action-' + chunk.action);
+        $(rightLines.slice(rightLine, rightLine + rightSize))
+          .addClass('action-' + chunk.action);
+        drawBridge(chunk, 0, 0);
       }
 
       leftLine   += leftSize;
       rightLine  += rightSize;
-      gutterLine += chunk.size
+      gutterLine += chunkSize
     }
 
+    // gutter should be tall enough to scroll through tallest chunks
     $('.gutter').css('height', (getLineHeight() * gutterLine) + 'px');
   });
 }
@@ -158,55 +122,38 @@ function loadFile(file, container) {
   });
 }
 
-function drawBridge(changeLeft, changeRight, lineLeft, lineRight, leftOffset, rightOffset, bridge) {
+function drawBridge(chunk, leftOffset, rightOffset, bridge) {
   // if bridge is given we are re-drawing an existing bridge
   // otherwise we need to make the bridge
   if (bridge) {
-    changeLeft  = bridge.data('changeLeft');
-    changeRight = bridge.data('changeRight');
-    lineLeft    = bridge.data('lineLeft');
-    lineRight   = bridge.data('lineRight');
+    chunk  = bridge.data('chunk');
   } else {
-    bridge = $('<svg><polygon></polygon></svg>')
-      .appendTo('.gutter')
-      .data('changeLeft',  changeLeft)
-      .data('changeRight', changeRight)
-      .data('lineLeft',    lineLeft)
-      .data('lineRight',   lineRight);
+    bridge = $('<svg><polygon></polygon></svg>').appendTo('.gutter').data('chunk', chunk);
   }
 
-  // adjust lineLeft/Right to account for offset (scroll alignment)
-  var lineHeight  = getLineHeight();
-  var action      = changeLeft.removed && changeRight.added ? 'edit' : (changeLeft.removed ? 'delete' : 'add');
-  var leftHeight  = changeLeft.removed ? (changeLeft.count  * lineHeight) : 0;
-  var rightHeight = changeRight.added  ? (changeRight.count * lineHeight) : 0;
-
-  var top, leftTop, leftBottom, rightTop, rightBottom;
-
-  // we need four points to draw the bridge
-  // begin by assuming the canvas is the size of the gutter
-  var leftTop     = (lineLeft * lineHeight)  + leftOffset,
-      rightTop    = (lineRight * lineHeight) + rightOffset,
-      rightBottom = rightTop + rightHeight,
-      leftBottom  = leftTop  + leftHeight,
+  // we need four points to draw the bridge plus position and height in the gutter
+  var align       = chunk.align,
+      lineHeight  = getLineHeight(),
+      leftTop     = (align.left.first  * lineHeight) + leftOffset,
+      rightTop    = (align.right.first * lineHeight) + rightOffset,
+      rightBottom = rightTop + (align.right.size * lineHeight),
+      leftBottom  = leftTop  + (align.left.size  * lineHeight),
       top         = Math.min(leftTop, rightTop),
-      height      = Math.max(leftBottom, rightBottom);
+      height      = Math.max(leftBottom, rightBottom),
+      points      = [
+        '0,'   + leftTop,
+        '100,' + rightTop,
+        '100,' + rightBottom,
+        '0,'   + leftBottom
+      ];
 
-  var points = [
-    '0,'   + leftTop,
-    '100,' + rightTop,
-    '100,' + rightBottom,
-    '0,'   + leftBottom
-  ];
-
-  height = Math.max(leftBottom, rightBottom); // - Math.min(leftTop, rightTop);
-
+  // we pretend the canvas is the size of the gutter, use the viewbox to crop it
   // viewbox and aspect ratio must be set natively or they don't work - weird
   bridge[0].setAttribute('viewBox', '0,' + top + ' 100,' + height);
   bridge[0].setAttribute('preserveAspectRatio', 'none');
 
   bridge
-    .addClass('bridge ' + action)
+    .addClass('bridge action-' + chunk.action)
     .css('top', top + 'px')
     .attr('height', height);
 
@@ -216,12 +163,14 @@ function drawBridge(changeLeft, changeRight, lineLeft, lineRight, leftOffset, ri
     .attr('points', points.join(' '));
 }
 
-var lastLeftOffset  = 0, lastRightOffset = 0;
+var lastLeftOffset  = 0,
+    lastRightOffset = 0;
 function updateBridges(leftOffset, rightOffset) {
-  if (leftOffset === lastLeftOffset && rightOffset === lastRightOffset) return;
+  if (leftOffset === lastLeftOffset && rightOffset === lastRightOffset)
+    return;
 
   $('.bridge').each(function(){
-    drawBridge(null, null, null, null, leftOffset, rightOffset, $(this));
+    drawBridge(null, leftOffset, rightOffset, $(this));
   });
 
   lastLeftOffset  = leftOffset;
@@ -240,7 +189,8 @@ $(function(){
         focalLine   = Math.floor(focalPoint / lineHeight);
 
     // line-up first line in each chunk
-    var align       = alignByLine[focalLine],
+    var chunk       = chunksByLine[focalLine],
+        align       = chunk.align,
         leftOffset  = (align.gutter.first - align.left.first)  * lineHeight,
         rightOffset = (align.gutter.first - align.right.first) * lineHeight;
 

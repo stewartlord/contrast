@@ -29,13 +29,13 @@ body {
   height: 18px;
   padding: 0 2px;
 }
-.line.delete {
+.line.action-delete {
   background-color: rgba(255, 96, 96, .2);
 }
-.line.add {
+.line.action-add {
   background-color: rgba(96, 255, 96, .2);
 }
-.line.edit {
+.line.action-edit {
   background-color: rgba(96, 96, 255, .2);
 }
 
@@ -48,12 +48,12 @@ body {
   position: absolute;
   width: 100%;
 }
-.gutter .delete {
+.gutter .action-delete {
   fill: rgba(255, 96, 96, .25);
 }
-.gutter .add {
+.gutter .action-add {
   fill: rgba(96, 255, 96, .25);
 }
-.gutter .edit {
+.gutter .action-edit {
   fill: rgba(96, 96, 255, .25);
 }
