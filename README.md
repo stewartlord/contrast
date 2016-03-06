@@ -10,7 +10,8 @@ This is a work in progress. This is very very early in development.
 
 ## To Do
 
-- Clean-up code (now that we scroll smoothly)
+- Add line-numbers
+- Sub-line diffing
 - Take files to diff as command arguments
 - Everything else
 
