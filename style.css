@@ -12,10 +12,10 @@ body {
   overflow-x: scroll;
 }
 .file-left {
-  border-right: 1px solid #444;
+  border-right: 1px solid rgba(255, 255, 255, .15);
 }
 .file-right {
-  border-left: 1px solid #444;
+  border-left: 1px solid rgba(255, 255, 255, .15);
 }
 .file .file-contents {
   display: flex;
@@ -24,10 +24,21 @@ body {
 }
 .file .file-contents pre {
   margin: 0;
+  counter-reset: line;
+}
+div.line:before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  min-width: 38px;
+  padding: 0 5px;
+  margin-right: 5px;
+  color: #888;
+  background-color: rgba(255, 255, 255, .05);
 }
 .line {
   height: 18px;
-  padding: 0 2px;
+  padding-right: 2px;
 }
 .line.action-delete {
   background-color: rgba(255, 96, 96, .2);
@@ -41,7 +52,7 @@ body {
 
 .gutter {
   position: relative;
-  min-width: 3%;
+  min-width: 3.25%;
   margin: 2px 0;
 }
 .gutter svg {
