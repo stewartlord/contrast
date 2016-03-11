@@ -10,7 +10,10 @@ This is a work in progress. This is very very early in development.
 
 ## To Do
 
-- Clean-up code (now that we scroll smoothly)
+- Fix height (extra space when scrolled to bottom)
+- Fix scroll to top such that left/right align on line 0
+- Add line-numbers
+- Sub-line diffing
 - Take files to diff as command arguments
 - Everything else
 
