@@ -37,6 +37,7 @@ div.line:before {
   background-color: rgba(255, 255, 255, .05);
 }
 .line {
+  box-sizing: border-box;
   height: 18px;
   padding-right: 2px;
 }
@@ -49,11 +50,23 @@ div.line:before {
 .line.action-edit {
   background-color: rgba(96, 96, 255, .2);
 }
+.file-left .line.action-add {
+  border-top: 2px dotted rgba(96, 255, 96, .2);
+  margin-top: -1px;
+  height: 19px;
+  background-color: transparent;
+}
+.file-right .line.action-delete {
+  border-bottom: 2px dotted rgba(255, 96, 96, .2);
+  margin-top: -1px;
+  height: 19px;
+  background-color: transparent;
+}
 
 .gutter {
   position: relative;
-  min-width: 3.25%;
-  margin: 2px 0;
+  min-width: 4%;
+  margin: 2px -1px;
 }
 .gutter svg {
   position: absolute;

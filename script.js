@@ -1,12 +1,13 @@
 window.$    = window.jQuery = require('jquery');
-bootstrap   = require('bootstrap');
-highlights  = require('highlights');
 diff        = require('diff');
+electron    = require('electron');
+highlights  = require('highlights');
 path        = require('path');
 
-// temp for dev
-var left  = __dirname + '/sample-left.js';
-var right = __dirname + '/sample-right.js';
+// listen for what files to diff
+electron.ipcRenderer.on('args', function(event, args) {
+  loadDiff(args[1], args[2]);
+});
 
 var chunksByLine = [];
 function loadDiff(left, right) {
@@ -79,9 +80,9 @@ function loadDiff(left, right) {
       // tag changed lines with add/edit/delete action classes
       // and draw connection between the left and right hand side
       if (!chunk.same) {
-        $(leftLines.slice(leftLine, leftLine + leftSize))
+        $(leftLines.slice(leftLine, leftLine + (leftSize || 1)))
           .addClass('action-' + chunk.action);
-        $(rightLines.slice(rightLine, rightLine + rightSize))
+        $(rightLines.slice((rightSize ? rightLine : rightLine - 1), rightLine + rightSize))
           .addClass('action-' + chunk.action);
         drawBridge(chunk, 0, 0);
       }
@@ -178,8 +179,6 @@ function updateBridges(leftOffset, rightOffset) {
 }
 
 $(function(){
-  loadDiff(left, right);
-
   $(window).on('scroll', function(e){
     // align changes when they scroll to a point 1/3 of the way down the window
     // find the line that corresponds to this point based on line-height

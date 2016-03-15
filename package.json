@@ -4,7 +4,7 @@
   "description": "A diff tool",
   "main": "main.js",
   "scripts": {
-    "start": "electron main.js"
+    "start": "electron main.js --dev"
   },
   "repository": {
     "type": "git",

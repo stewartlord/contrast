@@ -10,6 +10,9 @@ const BrowserWindow = electron.BrowserWindow;
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
+var dev  = process.argv.indexOf('--dev');
+var args = process.argv.slice(dev !== -1 ? 2 : 1);
+
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 1280, height: 800});
@@ -17,8 +20,15 @@ function createWindow () {
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Open the DevTools in dev mode
+  if (dev > 0) {
+    mainWindow.webContents.openDevTools();
+  }
+
+  // Diff given files
+  mainWindow.webContents.on('did-finish-load', function() {
+    mainWindow.webContents.send('args', args);
+  });
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
