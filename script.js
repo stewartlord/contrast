@@ -6,7 +6,9 @@ path        = require('path');
 
 // listen for what files to diff
 electron.ipcRenderer.on('args', function(event, args) {
-  loadDiff(args[1], args[2]);
+  if (args[1] && args[2]) {
+    loadDiff(args[1], args[2]);
+  }
 });
 
 var chunksByLine = [];
@@ -133,6 +135,8 @@ function drawBridge(chunk, leftOffset, rightOffset, bridge) {
   }
 
   // we need four points to draw the bridge plus position and height in the gutter
+  // initially we pretend the svg canvas starts at the top of the gutter, then we
+  // crop off the top and push it down using relative positioning
   var align       = chunk.align,
       lineHeight  = getLineHeight(),
       leftTop     = (align.left.first  * lineHeight) + leftOffset,
@@ -140,17 +144,16 @@ function drawBridge(chunk, leftOffset, rightOffset, bridge) {
       rightBottom = rightTop + (align.right.size * lineHeight),
       leftBottom  = leftTop  + (align.left.size  * lineHeight),
       top         = Math.min(leftTop, rightTop),
-      height      = Math.max(leftBottom, rightBottom),
+      height      = Math.max(leftBottom, rightBottom) - top,
       points      = [
-        '0,'   + leftTop,
-        '100,' + rightTop,
-        '100,' + rightBottom,
-        '0,'   + leftBottom
+        '0,'   + (leftTop     - top),
+        '100,' + (rightTop    - top),
+        '100,' + (rightBottom - top),
+        '0,'   + (leftBottom  - top)
       ];
 
-  // we pretend the canvas is the size of the gutter, use the viewbox to crop it
   // viewbox and aspect ratio must be set natively or they don't work - weird
-  bridge[0].setAttribute('viewBox', '0,' + top + ' 100,' + height);
+  bridge[0].setAttribute('viewBox', '0,0 100,' + height);
   bridge[0].setAttribute('preserveAspectRatio', 'none');
 
   bridge
@@ -188,7 +191,7 @@ $(function(){
         focalLine   = Math.floor(focalPoint / lineHeight);
 
     // line-up first line in each chunk
-    var chunk       = chunksByLine[focalLine],
+    var chunk       = chunksByLine[Math.min(focalLine, chunksByLine.length - 1)],
         align       = chunk.align,
         leftOffset  = (align.gutter.first - align.left.first)  * lineHeight,
         rightOffset = (align.gutter.first - align.right.first) * lineHeight;
