@@ -1,11 +1,16 @@
+html {
+  height: 100%;
+}
 body {
   display: flex;
+  min-height: 100%;
   margin: 0;
   font-size: 16px;
   font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;
   background: #111;
 }
 .file {
+  flex: 1;
   box-sizing: border-box;
   padding: 2px 0;
   background-color: #1d1f21;
@@ -18,11 +23,13 @@ body {
   border-left: 1px solid rgba(255, 255, 255, .15);
 }
 .file .file-contents {
-  display: flex;
   position: relative;
   color: #fff;
 }
 .file .file-contents pre {
+  display: inline-block;
+  vertical-align: top;
+  min-width: 100%;
   margin: 0;
   counter-reset: line;
 }
@@ -36,27 +43,27 @@ div.line:before {
   color: #888;
   background-color: rgba(255, 255, 255, .05);
 }
-.line {
+div.line {
   box-sizing: border-box;
   height: 18px;
   padding-right: 2px;
 }
-.line.action-delete {
+div.line.action-delete {
   background-color: rgba(255, 96, 96, .2);
 }
-.line.action-add {
+div.line.action-add {
   background-color: rgba(96, 255, 96, .2);
 }
-.line.action-edit {
+div.line.action-edit {
   background-color: rgba(96, 96, 255, .2);
 }
-.file-left .line.action-add {
+.file-left div.line.action-add {
   border-top: 2px dotted rgba(96, 255, 96, .2);
   margin-top: -1px;
   height: 19px;
   background-color: transparent;
 }
-.file-right .line.action-delete {
+.file-right div.line.action-delete {
   border-bottom: 2px dotted rgba(255, 96, 96, .2);
   margin-top: -1px;
   height: 19px;
