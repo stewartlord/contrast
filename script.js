@@ -1,6 +1,7 @@
 window.$    = window.jQuery = require('jquery');
 diff        = require('diff');
 electron    = require('electron');
+fs          = require('fs');
 highlights  = require('highlights');
 path        = require('path');
 
@@ -16,8 +17,8 @@ function loadDiff(left, right) {
   $('title').text(path.basename(left) + ' - ' + path.basename(right));
 
   Promise.all([
-    loadFile(left,  $('.file-left .file-contents')),
-    loadFile(right, $('.file-right .file-contents'))
+    loadFile(left,  $('.file-left')),
+    loadFile(right, $('.file-right'))
   ]).then(function(values) {
     var i,
         isEdit  = false,
@@ -45,23 +46,25 @@ function loadDiff(left, right) {
 
     // process the diff chunks now that we've paired up edits:
     //  - if you were to take the tallest side of each diff chunk and stack
-    //    them on top of each other, that is how tall we want the gutter to be
-    //    that way you can scroll through the gutter and smoothly scroll past
+    //    them on top of each other, that is how tall we want the river to be
+    //    that way you can scroll down the river and smoothly scroll past
     //    every line in every diff chunk
-    //  - for any given 'gutter' line number we want to be able to quickly
+    //  - for any given 'river' line number we want to be able to quickly
     //    lookup the chunk and left/right line numbers that we should be
     //    trying to align when scrolled to the top or bottom of the chunk
     //  - identify changed lines with action-add/edit/delete
     //  - draw connecting svg 'bridges' between the left and right side
-    var chunk       = null,
-        chunkSize   = 0,
-        gutterLine  = 0,
-        leftLines   = $('.file-left div.line'),
-        leftLine    = 0,
-        leftSize    = 0,
-        rightLines  = $('.file-right div.line'),
-        rightLine   = 0,
-        rightSize   = 0;
+    var chunk        = null,
+        chunkSize    = 0,
+        riverLine    = 0,
+        leftNumbers  = $('.file-left .file-gutter div.line'),
+        leftLines    = $('.file-left .file-contents div.line'),
+        leftLine     = 0,
+        leftSize     = 0,
+        rightNumbers = $('.file-right .file-gutter div.line'),
+        rightLines   = $('.file-right .file-contents div.line'),
+        rightLine    = 0,
+        rightSize    = 0;
 
     for (i = 0; i < chunks.length; i++) {
       chunk     = chunks[i];
@@ -69,33 +72,38 @@ function loadDiff(left, right) {
       rightSize = chunk.delete ? 0 : chunk.right.count;
       chunkSize = chunk.size;
 
-      // prepare line-based alignment data and index by gutter line number
+      // prepare line-based alignment data and index by river line number
       chunk.align = {
-        left:   { first: leftLine,   last: leftLine   + leftSize,  size: leftSize },
-        right:  { first: rightLine,  last: rightLine  + rightSize, size: rightSize },
-        gutter: { first: gutterLine, last: gutterLine + chunkSize, size: chunkSize }
+        left:  { first: leftLine,  last: leftLine  + leftSize,  size: leftSize },
+        right: { first: rightLine, last: rightLine + rightSize, size: rightSize },
+        river: { first: riverLine, last: riverLine + chunkSize, size: chunkSize }
       };
       for (var j = 0; j < chunk.size; j++) {
-        chunksByLine[gutterLine + j] = chunk;
+        chunksByLine[riverLine + j] = chunk;
       }
 
       // tag changed lines with add/edit/delete action classes
       // and draw connection between the left and right hand side
       if (!chunk.same) {
+        $(leftNumbers.slice(leftLine, leftLine + (leftSize || 1)))
+          .addClass('action-' + chunk.action);
         $(leftLines.slice(leftLine, leftLine + (leftSize || 1)))
+          .addClass('action-' + chunk.action);
+        $(rightNumbers.slice((rightSize ? rightLine : rightLine - 1), rightLine + rightSize))
           .addClass('action-' + chunk.action);
         $(rightLines.slice((rightSize ? rightLine : rightLine - 1), rightLine + rightSize))
           .addClass('action-' + chunk.action);
+
         drawBridge(chunk, 0, 0);
       }
 
-      leftLine   += leftSize;
-      rightLine  += rightSize;
-      gutterLine += chunkSize
+      leftLine  += leftSize;
+      rightLine += rightSize;
+      riverLine += chunkSize
     }
 
-    // gutter should be tall enough to scroll through tallest chunks
-    $('.gutter').css('height', (getLineHeight() * gutterLine) + 'px');
+    // river should be tall enough to scroll through tallest chunks
+    $('.river').css('min-height', (getLineHeight() * riverLine) + 'px');
   });
 }
 
@@ -109,7 +117,6 @@ function getLineHeight() {
 
 function loadFile(file, container) {
   return new Promise(function(resolve, reject) {
-    var fs = require('fs');
     fs.readFile(file, 'utf8', function (error, data) {
       if (error) reject();
 
@@ -118,8 +125,15 @@ function loadFile(file, container) {
         fileContents: data,
         scopeName: 'source.js'
       });
+      container.find('.file-contents').html(html);
 
-      container.html(html);
+      // render line numbers
+      html = '';
+      for (var i = 1; i <= container.find('div.line').length; i++) {
+        html += '<div class="line">' + i + '</div>';
+      }
+      container.find('.file-gutter').html(html);
+
       resolve(data);
     });
   });
@@ -131,11 +145,11 @@ function drawBridge(chunk, leftOffset, rightOffset, bridge) {
   if (bridge) {
     chunk  = bridge.data('chunk');
   } else {
-    bridge = $('<svg><polygon></polygon></svg>').appendTo('.gutter').data('chunk', chunk);
+    bridge = $('<svg><polygon></polygon></svg>').appendTo('.river').data('chunk', chunk);
   }
 
-  // we need four points to draw the bridge plus position and height in the gutter
-  // initially we pretend the svg canvas starts at the top of the gutter, then we
+  // we need four points to draw the bridge plus position and height in the river
+  // initially we pretend the svg canvas starts at the top of the river, then we
   // crop off the top and push it down using relative positioning
   var align       = chunk.align,
       lineHeight  = getLineHeight(),
@@ -193,17 +207,17 @@ $(function(){
     // line-up first line in each chunk
     var chunk       = chunksByLine[Math.min(focalLine, chunksByLine.length - 1)],
         align       = chunk.align,
-        leftOffset  = (align.gutter.first - align.left.first)  * lineHeight,
-        rightOffset = (align.gutter.first - align.right.first) * lineHeight;
+        leftOffset  = (align.river.first - align.left.first)  * lineHeight,
+        rightOffset = (align.river.first - align.right.first) * lineHeight;
 
     // what percentage of the way through this chunk are we?
     // the smaller side should get edged down by % of it's deficit
-    var percent     = ((focalPoint/lineHeight) - align.gutter.first) / align.gutter.size;
-    leftOffset     += percent * (align.gutter.size - align.left.size)  * lineHeight;
-    rightOffset    += percent * (align.gutter.size - align.right.size) * lineHeight;
+    var percent     = ((focalPoint/lineHeight) - align.river.first) / align.river.size;
+    leftOffset     += percent * (align.river.size - align.left.size)  * lineHeight;
+    rightOffset    += percent * (align.river.size - align.right.size) * lineHeight;
 
-    $('.file-left  .file-contents').css('top', leftOffset  + 'px');
-    $('.file-right .file-contents').css('top', rightOffset + 'px');
+    $('.file-left  .file-offset').css('top', leftOffset  + 'px');
+    $('.file-right .file-offset').css('top', rightOffset + 'px');
 
     // redraw connecting svgs
     updateBridges(leftOffset, rightOffset);

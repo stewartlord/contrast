@@ -5,16 +5,17 @@ body {
   display: flex;
   min-height: 100%;
   margin: 0;
-  font-size: 16px;
-  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;
   background: #111;
 }
+
+/* file containers */
 .file {
   flex: 1;
   box-sizing: border-box;
   padding: 2px 0;
+  font-size: 16px;
+  line-height: 24px;
   background-color: #1d1f21;
-  overflow-x: scroll;
 }
 .file-left {
   border-right: 1px solid rgba(255, 255, 255, .15);
@@ -22,31 +23,28 @@ body {
 .file-right {
   border-left: 1px solid rgba(255, 255, 255, .15);
 }
-.file .file-contents {
+.file .file-offset {
   position: relative;
+}
+.file .file-contents {
+  overflow-x: scroll;
   color: #fff;
 }
 .file .file-contents pre {
+  font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
   display: inline-block;
   vertical-align: top;
   min-width: 100%;
   margin: 0;
-  counter-reset: line;
 }
-div.line:before {
-  counter-increment: line;
-  content: counter(line);
-  display: inline-block;
-  min-width: 38px;
-  padding: 0 5px;
-  margin-right: 5px;
-  color: #888;
-  background-color: rgba(255, 255, 255, .05);
-}
+
+/* file lines */
 div.line {
   box-sizing: border-box;
-  height: 18px;
-  padding-right: 2px;
+  height: 24px;
+}
+.file-contents div.line {
+  padding: 0 2px 0 62px;
 }
 div.line.action-delete {
   background-color: rgba(255, 96, 96, .2);
@@ -60,31 +58,45 @@ div.line.action-edit {
 .file-left div.line.action-add {
   border-top: 2px dotted rgba(96, 255, 96, .2);
   margin-top: -1px;
-  height: 19px;
+  height: 25px;
   background-color: transparent;
 }
 .file-right div.line.action-delete {
   border-bottom: 2px dotted rgba(255, 96, 96, .2);
   margin-top: -1px;
-  height: 19px;
+  height: 25px;
   background-color: transparent;
 }
 
-.gutter {
+/* file gutter and line numbers */
+.file-gutter {
+  position: absolute;
+  z-index: 10;
+  min-width: 60px;
+  font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  color: #888;
+  background-color: rgba(41, 44, 47, 1);
+}
+.file-gutter div.line {
+  padding: 0 10px;
+}
+
+/* river and bridges */
+.river {
   position: relative;
   min-width: 4%;
-  margin: 2px -1px;
+  margin: 2px -.5px;
 }
-.gutter svg {
+.river .bridge {
   position: absolute;
   width: 100%;
 }
-.gutter .action-delete {
+.bridge.action-delete {
   fill: rgba(255, 96, 96, .25);
 }
-.gutter .action-add {
+.bridge.action-add {
   fill: rgba(96, 255, 96, .25);
 }
-.gutter .action-edit {
+.bridge.action-edit {
   fill: rgba(96, 96, 255, .25);
 }
