@@ -17,6 +17,15 @@ body {
   line-height: 24px;
   background-color: #1d1f21;
 }
+.file::before {
+  position: fixed;
+  content: ' ';
+  z-index: 5;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  background-color: rgba(41, 44, 47, 1);
+}
 .file-left {
   border-right: 1px solid rgba(255, 255, 255, .15);
 }
@@ -36,15 +45,14 @@ body {
   vertical-align: top;
   min-width: 100%;
   margin: 0;
+  padding-left: 60px;
 }
 
 /* file lines */
 div.line {
   box-sizing: border-box;
   height: 24px;
-}
-.file-contents div.line {
-  padding: 0 2px 0 62px;
+  padding: 0 5px;
 }
 div.line.action-delete {
   background-color: rgba(255, 96, 96, .2);
@@ -75,7 +83,6 @@ div.line.action-edit {
   min-width: 60px;
   font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
   color: #888;
-  background-color: rgba(41, 44, 47, 1);
 }
 .file-gutter div.line {
   padding: 0 10px;
