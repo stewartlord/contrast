@@ -23,10 +23,9 @@ This is a work in progress. This is very early in development.
 
 ## To Do
 
-- Make file gutter background extend top to bottom
-- Fix scroll to top such that left/right align on line 0
 - Sub-line diffing
-- Synchronize side-scrolling
+- Change app name in menu
+- Make release build
 - Everything else
 
 #### License [MIT](LICENSE)
