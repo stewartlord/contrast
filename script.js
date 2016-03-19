@@ -196,9 +196,9 @@ function updateBridges(leftOffset, rightOffset) {
 }
 
 $(function(){
-  $(window).on('scroll', function(e){
-    // align changes when they scroll to a point 1/3 of the way down the window
-    // find the line that corresponds to this point based on line-height
+  // align changes when they scroll to a point 1/3 of the way down the window
+  // find the line that corresponds to this point based on line-height
+  $(window).on('scroll', function(){
     var scrollTop   = $(window).scrollTop(),
         lineHeight  = getLineHeight(),
         focalPoint  = Math.floor($(window).height() / 3) + scrollTop,
@@ -221,5 +221,14 @@ $(function(){
 
     // redraw connecting svgs
     updateBridges(leftOffset, rightOffset);
+  });
+
+  // sync up side-scrolling of left/right file panes
+  $('.file .file-contents').on('scroll', function(e){
+    var master = $(e.currentTarget),
+        other  = master.closest('.file').is('.file-left') ? 'right' : 'left'
+        slave  = $('.file-' + other + ' .file-contents');
+
+    slave.scrollLeft(master.scrollLeft());
   });
 });
