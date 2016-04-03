@@ -55,25 +55,37 @@ div.line {
   padding: 0 5px;
 }
 div.line.action-delete {
-  background-color: rgba(255, 96, 96, .2);
+  background-color: rgba(255, 96, 96, .25);
 }
 div.line.action-add {
-  background-color: rgba(96, 255, 96, .2);
+  background-color: rgba(96, 255, 96, .25);
 }
 div.line.action-edit {
-  background-color: rgba(96, 96, 255, .2);
+  background-color: rgba(96, 96, 255, .25);
 }
 .file-left div.line.action-add {
-  border-top: 2px dotted rgba(96, 255, 96, .2);
+  border-top: 2px dotted rgba(96, 255, 96, .25);
   margin-top: -1px;
   height: 25px;
   background-color: transparent;
 }
 .file-right div.line.action-delete {
-  border-bottom: 2px dotted rgba(255, 96, 96, .2);
+  border-bottom: 2px dotted rgba(255, 96, 96, .25);
   margin-top: -1px;
   height: 25px;
   background-color: transparent;
+}
+div.line span {
+  display: inline-block;
+}
+.sub-chunk {
+  background-color: rgba(128, 128, 255, .5);
+}
+.file-left .sub-chunk.action-add,
+.file-right .sub-chunk.action-delete {
+  vertical-align: bottom;
+  min-width: 2px;
+  min-height: 24px;
 }
 
 /* file gutter and line numbers */

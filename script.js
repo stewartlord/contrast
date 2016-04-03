@@ -97,6 +97,14 @@ function loadDiff(left, right) {
         drawBridge(chunk, 0, 0);
       }
 
+      // do sub-chunk diffing on edits
+      if (chunk.edit) {
+        subDiff(
+          $(leftLines.slice(leftLine, leftLine + leftSize)),
+          $(rightLines.slice(rightLine, rightLine + rightSize))
+        );
+      }
+
       leftLine  += leftSize;
       rightLine += rightSize;
       riverLine += chunkSize
@@ -105,6 +113,109 @@ function loadDiff(left, right) {
     // river should be tall enough to scroll through tallest chunks
     $('.river').css('min-height', (getLineHeight() * riverLine) + 'px');
   });
+}
+
+function subDiff(left, right) {
+  var change,
+      changes,
+      chunks      = [],
+      leftText    = "",
+      rightText   = "",
+      leftLeaves  = left.find('*').filter(function(){  return !this.childElementCount; }),
+      rightLeaves = right.find('*').filter(function(){ return !this.childElementCount; });
+
+  // extract text content from leaf nodes
+  leftLeaves.each(function(){  leftText  += $(this).html(); });
+  rightLeaves.each(function(){ rightText += $(this).html(); });
+
+  // diff the text (unescaped so we don't split entities)
+  changes = diff.diffChars(unescapeHtml(leftText), unescapeHtml(rightText));
+
+  // compose diff chunks and escape text again so it matches the dom
+  for (var i = 0; i < changes.length; i++) {
+    change       = changes[i];
+    change.value = escapeHtml(change.value);
+    chunks.push({
+      add:    change.added,
+      delete: change.removed,
+      same:   change.added || change.removed ? false : true,
+      action: change.added ? 'add' : (change.removed ? 'delete' : 'same'),
+      size:   change.value.length,
+      change: change
+    });
+  }
+
+  applySubDiff(chunks, leftLeaves,  true);
+  applySubDiff(chunks, rightLeaves, false);
+}
+
+function applySubDiff(chunks, leafNodes, isLeft) {
+  var chunk     = null,
+      chunkChar = 0,
+      applies   = true,
+      node      = null,
+      nodeIndex = 0,
+      nodeChar  = 0,
+      available = 0,
+      required  = 0,
+      consume   = 0,
+      html      = "",
+      head      = "",
+      tail      = "",
+      body      = "";
+
+  for (var i = 0; i < chunks.length; i++) {
+    chunk     = chunks[i];
+    chunkChar = 0;
+    applies   = (isLeft && !chunk.add) || (!isLeft && !chunk.delete);
+
+    while (chunkChar < chunk.size) {
+      node      = $(leafNodes.get(nodeIndex));
+      html      = node.html();
+      available = html.length - nodeChar;
+      required  = chunk.size - chunkChar;
+      consume   = Math.min(required, available);
+
+      // advance the node if we need more space
+      if (applies && !available) {
+        nodeIndex++;
+        nodeChar = 0;
+        continue;
+      }
+
+      // if this is a changed chunk, span wrap the part of it that resides in the node
+      if (!chunk.same) {
+        head = html.substring(0, nodeChar);
+        tail = html.substring(nodeChar + (applies ? consume : 0));
+        body = '<span class="sub-chunk action-' + chunk.action + '">'
+             + html.substring(nodeChar, nodeChar + (applies ? consume : 0))
+             + '</span>';
+        node.html(head + body + tail);
+      }
+
+      // move character pointers by the amount we advanced
+      chunkChar += applies    ? consume : required;
+      nodeChar  += chunk.same ? consume : body.length;
+    }
+  }
+}
+
+function escapeHtml(html) {
+  return html
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/ /g, '&nbsp;');
+}
+
+function unescapeHtml(html) {
+  return html
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&gt;/g,   '>')
+    .replace(/&lt;/g,   '<')
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g,  '&');
 }
 
 var lineHeight;
