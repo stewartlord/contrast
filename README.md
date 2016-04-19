@@ -7,6 +7,7 @@ This is a work in progress. This is very early in development.
 
 - Syntax highlighting
 - Magic scrolling
+- Sub-line diffing
 - Support for Atom themes
 
 ## To Use
@@ -23,9 +24,11 @@ This is a work in progress. This is very early in development.
 
 ## To Do
 
-- Sub-line diffing
 - Change app name in menu
 - Make release build
+- Add another theme and a way to switch themes
+- Add a refresh button
+- Add ability to edit content
 - Everything else
 
 #### License [MIT](LICENSE)
