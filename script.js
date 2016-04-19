@@ -6,11 +6,23 @@ highlights  = require('highlights');
 path        = require('path');
 
 // listen for what files to diff
+var left, right;
 electron.ipcRenderer.on('args', function(event, args) {
   if (args[1] && args[2]) {
-    loadDiff(args[1], args[2]);
+    left  = args[1];
+    right = args[2];
+    loadDiff(left, right);
   }
 });
+
+function refresh() {
+  chunksByLine    = [];
+  lineHeight      = null;
+  lastLeftOffset  = 0,
+  lastRightOffset = 0;
+  $('.file-contents, .file-gutter, .river').html("");
+  loadDiff(left, right);
+}
 
 var chunksByLine = [];
 function loadDiff(left, right) {
@@ -307,6 +319,9 @@ function updateBridges(leftOffset, rightOffset) {
 }
 
 $(function(){
+  // wire up the toolbar
+  $('.toolbar .fa-refresh').click(refresh);
+
   // align changes when they scroll to a point 1/3 of the way down the window
   // find the line that corresponds to this point based on line-height
   $(window).on('scroll', function(){

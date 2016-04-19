@@ -5,7 +5,27 @@ body {
   display: flex;
   min-height: 100%;
   margin: 0;
+  padding-top: 40px;
   background: #111;
+}
+
+/* toolbar */
+.toolbar {
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  height: 40px;
+  width: 100%;
+  padding: 0 8px;
+  background-color: #f7f7f7;
+}
+.toolbar .fa {
+  padding: 8px;
+  font-size: 24px;
+  color: #444;
+}
+.toolbar .fa:hover {
+  color: #000;
 }
 
 /* file containers */
@@ -103,8 +123,8 @@ div.line span {
 /* river and bridges */
 .river {
   position: relative;
-  min-width: 4%;
-  margin: 2px -.5px;
+  min-width: 5%;
+  margin: 2px -1px;
 }
 .river .bridge {
   position: absolute;
