@@ -1,6 +1,8 @@
 'use strict';
 
 const electron = require('electron');
+const path     = require('path');
+
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -27,6 +29,11 @@ function createWindow () {
 
   // Diff given files
   mainWindow.webContents.on('did-finish-load', function() {
+    // In dev mode the working directory changes, so absolutize paths to O_PWD
+    if (dev > 0 && process.env.O_PWD) {
+      if (args[1] && !path.isAbsolute(args[1])) args[1] = path.join(process.env.O_PWD, args[1]);
+      if (args[2] && !path.isAbsolute(args[2])) args[2] = path.join(process.env.O_PWD, args[2]);
+    }
     mainWindow.webContents.send('args', args);
   });
 

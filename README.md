@@ -18,7 +18,8 @@ This is a work in progress. This is very early in development.
 ## To Use with Git
 
 - git config --global diff.tool contrast
-- git config --global difftool.contrast.cmd 'cd /Users/slord/Git/contrast/; npm start $LOCAL $REMOTE'
+- git config --global difftool.contrast.cmd 'export O_PWD=$PWD; npm --prefix=/path/to/contrast start $LOCAL $REMOTE"
+cd /Users/slord/Git/contrast/; npm start $LOCAL $REMOTE'
 - git config --global difftool.prompt false
 - git difftool
 
