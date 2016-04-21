@@ -26,7 +26,6 @@ cd /Users/slord/Git/contrast/; npm start $LOCAL $REMOTE'
 
 ## To Do
 
-- Add another theme and a way to switch themes
 - Add persistent config (preferences)
 - Fix growing list of reproducible bugs
 - Clean-up code (start using modules)
