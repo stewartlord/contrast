@@ -1,7 +1,8 @@
 # Contrast
 
 This is a work in progress. This is very early in development.
-![Screenshot](/screenshot.png)
+![Screenshot Dark](/screenshot-dark.png)
+![Screenshot Light](/screenshot-light.png)
 
 ## Features
 
@@ -14,7 +15,7 @@ This is a work in progress. This is very early in development.
 
 - npm install
 - npm start left-file right-file
- 
+
 ## To Use with Git
 
 - git config --global diff.tool contrast
