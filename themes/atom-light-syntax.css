@@ -1,0 +1,209 @@
+atom-text-editor,
+:host {
+  background-color: white;
+  color: #555;
+}
+atom-text-editor .invisible-character,
+:host .invisible-character {
+  color: rgba(85, 85, 85, 0.2);
+}
+atom-text-editor .indent-guide,
+:host .indent-guide {
+  color: rgba(85, 85, 85, 0.2);
+}
+atom-text-editor .wrap-guide,
+:host .wrap-guide {
+  background-color: rgba(85, 85, 85, 0.2);
+}
+atom-text-editor .gutter,
+:host .gutter {
+  color: #555;
+  background: white;
+}
+atom-text-editor .gutter .line-number.folded,
+:host .gutter .line-number.folded,
+atom-text-editor .gutter .line-number:after,
+:host .gutter .line-number:after,
+atom-text-editor .fold-marker:after,
+:host .fold-marker:after {
+  color: #e87b00;
+}
+atom-text-editor .invisible,
+:host .invisible {
+  color: #555;
+}
+atom-text-editor .selection .region,
+:host .selection .region {
+  background-color: #e1e1e1;
+}
+atom-text-editor.is-focused .cursor,
+:host.is-focused .cursor {
+  border-color: black;
+}
+atom-text-editor.is-focused .selection .region,
+:host.is-focused .selection .region {
+  background-color: #afc4da;
+}
+atom-text-editor.is-focused .line-number.cursor-line-no-selection,
+:host.is-focused .line-number.cursor-line-no-selection,
+atom-text-editor.is-focused .line.cursor-line,
+:host.is-focused .line.cursor-line {
+  background-color: rgba(255, 255, 134, 0.34);
+}
+atom-text-editor .source.gfm,
+:host .source.gfm {
+  color: #444;
+}
+atom-text-editor .gfm .markup.heading,
+:host .gfm .markup.heading {
+  color: #111;
+}
+atom-text-editor .gfm .link,
+:host .gfm .link {
+  color: #888;
+}
+atom-text-editor .gfm .variable.list,
+:host .gfm .variable.list {
+  color: #888;
+}
+atom-text-editor .markdown .paragraph,
+:host .markdown .paragraph {
+  color: #444;
+}
+atom-text-editor .markdown .heading,
+:host .markdown .heading {
+  color: #111;
+}
+atom-text-editor .markdown .link,
+:host .markdown .link {
+  color: #888;
+}
+atom-text-editor .markdown .link .string,
+:host .markdown .link .string {
+  color: #888;
+}
+:host(.is-focused) .cursor {
+  border-color: black;
+}
+:host(.is-focused) .selection .region {
+  background-color: #afc4da;
+}
+:host(.is-focused) .line-number.cursor-line-no-selection,
+:host(.is-focused) .line.cursor-line {
+  background-color: rgba(255, 255, 134, 0.34);
+}
+.comment {
+  color: #999988;
+  font-style: italic;
+}
+.string {
+  color: #D14;
+}
+.string .source,
+.string .meta.embedded.line {
+  color: #5A5A5A;
+}
+.string .punctuation.section.embedded {
+  color: #920B2D;
+}
+.string .punctuation.section.embedded .source {
+  color: #920B2D;
+}
+.constant.numeric {
+  color: #D14;
+}
+.constant.language {
+  color: #606aa1;
+}
+.constant.character,
+.constant.other {
+  color: #606aa1;
+}
+.constant.symbol {
+  color: #990073;
+}
+.constant.numeric.line-number.find-in-files .match {
+  color: rgba(143, 190, 0, 0.63);
+}
+.variable {
+  color: #008080;
+}
+.variable.parameter {
+  color: #606aa1;
+}
+.keyword {
+  color: #222;
+  font-weight: bold;
+}
+.keyword.unit {
+  color: #445588;
+}
+.keyword.special-method {
+  color: #0086B3;
+}
+.storage {
+  color: #222;
+}
+.storage.type {
+  color: #222;
+}
+.entity.name.class {
+  text-decoration: underline;
+  color: #606aa1;
+}
+.entity.other.inherited-class {
+  text-decoration: underline;
+  color: #606aa1;
+}
+.entity.name.function {
+  color: #900;
+}
+.entity.name.tag {
+  color: #008080;
+}
+.entity.other.attribute-name {
+  color: #458;
+  font-weight: bold;
+}
+.entity.name.filename.find-in-files {
+  color: #E6DB74;
+}
+.support.constant,
+.support.function,
+.support.type {
+  color: #458;
+}
+.support.class {
+  color: #008080;
+}
+.invalid {
+  color: #F8F8F0;
+  background-color: #00A8C6;
+}
+.invalid.deprecated {
+  color: #F8F8F0;
+  background-color: #8FBE00;
+}
+.meta.structure.dictionary.json > .string.quoted.double.json,
+.meta.structure.dictionary.json > .string.quoted.double.json .punctuation.string {
+  color: #000080;
+}
+.meta.structure.dictionary.value.json > .string.quoted.double.json {
+  color: #d14;
+}
+.meta.diff,
+.meta.diff.header {
+  color: #75715E;
+}
+.css.support.property-name {
+  font-weight: bold;
+  color: #333;
+}
+.css.constant {
+  color: #099;
+}
+.bracket-matcher .region {
+  background-color: #C9C9C9;
+  opacity: .7;
+  border-bottom: 0 none;
+}

@@ -7,6 +7,7 @@ const electron   = require('electron');
 const fs         = require('fs');
 const highlights = require('highlights');
 const path       = require('path');
+const remote     = require('remote');
 
 // listen for what files to diff
 var left, right;
@@ -319,9 +320,48 @@ function updateBridges(leftOffset, rightOffset) {
   lastRightOffset = rightOffset;
 }
 
+function getThemeMenu() {
+  var Menu = remote.require('menu'),
+      Item = remote.require('menu-item'),
+      menu = new Menu();
+
+  var themes = [
+    {label: 'Atom Dark',  file: 'themes/atom-dark-syntax.css'},
+    {label: 'Atom Light', file: 'themes/atom-light-syntax.css'}
+  ];
+
+  for (let i = 0; i < themes.length; i++) {
+    menu.append(new Item({
+      label:   themes[i].label,
+      type:    'checkbox',
+      checked: themes[i].file === getCurrentTheme(),
+      click:   function(){ switchTheme(themes[i].file); }
+    }));
+  }
+
+  return menu;
+}
+
+function switchTheme(theme) {
+  var isDark = theme.match(/dark/i) !== null;
+  $('html').toggleClass('dark-theme', isDark).toggleClass('light-theme', !isDark);
+  $('link.theme').attr('href', theme);
+}
+
+function getCurrentTheme() {
+  return $('link.theme').attr('href');
+}
+
 $(function(){
   // wire up the toolbar
   $('.toolbar .fa-refresh').click(refresh);
+  $('.toolbar .fa-paint-brush').click(function(){
+    getThemeMenu().popup(
+      remote.getCurrentWindow(),
+      Math.round($(this).position().left),
+      Math.round($(this).position().top + $(this).outerHeight())
+    );
+  });
 
   // align changes when they scroll to a point 1/3 of the way down the window
   // find the line that corresponds to this point based on line-height
