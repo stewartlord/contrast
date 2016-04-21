@@ -215,7 +215,6 @@ function applySubDiff(chunks, leafNodes, isLeft) {
 function escapeHtml(html) {
   return html
     .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/ /g, '&nbsp;');
@@ -226,7 +225,6 @@ function unescapeHtml(html) {
     .replace(/&nbsp;/g, ' ')
     .replace(/&gt;/g,   '>')
     .replace(/&lt;/g,   '<')
-    .replace(/&quot;/g, '"')
     .replace(/&amp;/g,  '&');
 }
 
