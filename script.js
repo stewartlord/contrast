@@ -1,9 +1,12 @@
-window.$    = window.jQuery = require('jquery');
-diff        = require('diff');
-electron    = require('electron');
-fs          = require('fs');
-highlights  = require('highlights');
-path        = require('path');
+'use strict';
+
+window.jQuery    = require('jquery');
+window.$         = window.jQuery;
+const diff       = require('diff');
+const electron   = require('electron');
+const fs         = require('fs');
+const highlights = require('highlights');
+const path       = require('path');
 
 // listen for what files to diff
 var left, right;
@@ -34,7 +37,7 @@ function loadDiff(left, right) {
   ]).then(function(values) {
     var i,
         isEdit  = false,
-        chunks  = [];
+        chunks  = [],
         changes = diff.diffLines(values[0], values[1]);
 
     // make a pass through changes to pair up edits
