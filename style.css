@@ -75,6 +75,11 @@ div.line {
   height: 24px;
   padding: 0 5px;
 }
+div.line.chunk-first {
+  margin-top: -1px;
+  height: 25px;
+  line-height: 25px;
+}
 div.line.action-delete {
   background-color: rgba(255, 96, 96, .25);
 }
@@ -85,16 +90,14 @@ div.line.action-edit {
   background-color: rgba(96, 96, 255, .25);
 }
 .file-left div.line.action-add {
-  border-top: 2px dotted rgba(96, 255, 96, .25);
+  background-color: transparent;
+  border-top: 1px solid rgba(96, 255, 96, .25);
   margin-top: -1px;
   height: 25px;
-  background-color: transparent;
 }
 .file-right div.line.action-delete {
-  border-bottom: 2px dotted rgba(255, 96, 96, .25);
-  margin-top: -1px;
-  height: 25px;
   background-color: transparent;
+  border-bottom: 1px solid rgba(255, 96, 96, .25);
 }
 div.line span {
   display: inline-block;

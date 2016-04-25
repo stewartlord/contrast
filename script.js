@@ -71,6 +71,7 @@ function loadDiff(left, right) {
     //  - identify changed lines with action-add/edit/delete
     //  - draw connecting svg 'bridges' between the left and right side
     var chunk        = null,
+        chunkClass   = '',
         chunkSize    = 0,
         riverLine    = 0,
         leftNumbers  = $('.file-left .file-gutter div.line'),
@@ -101,14 +102,15 @@ function loadDiff(left, right) {
       // tag changed lines with add/edit/delete action classes
       // and draw connection between the left and right hand side
       if (!chunk.same) {
+        chunkClass = 'action-' + chunk.action;
         $(leftNumbers.slice(leftLine, leftLine + (leftSize || 1)))
-          .addClass('action-' + chunk.action);
+          .addClass(chunkClass).first().addClass('chunk-first');
         $(leftLines.slice(leftLine, leftLine + (leftSize || 1)))
-          .addClass('action-' + chunk.action);
+          .addClass(chunkClass).first().addClass('chunk-first');
         $(rightNumbers.slice((rightSize ? rightLine : rightLine - 1), rightLine + rightSize))
-          .addClass('action-' + chunk.action);
+          .addClass(chunkClass).first().addClass('chunk-first');
         $(rightLines.slice((rightSize ? rightLine : rightLine - 1), rightLine + rightSize))
-          .addClass('action-' + chunk.action);
+          .addClass(chunkClass).first().addClass('chunk-first');
 
         drawBridge(chunk, 0, 0);
       }
@@ -295,10 +297,12 @@ function drawBridge(chunk, leftOffset, rightOffset, bridge) {
   bridge[0].setAttribute('viewBox', '0,0 100,' + height);
   bridge[0].setAttribute('preserveAspectRatio', 'none');
 
+  // position bridge 1px higher and taller because the first line of each chunk
+  // is drawn 1px higher and taller (to line-up with ruler on pure adds/deletes)
   bridge
     .addClass('bridge action-' + chunk.action)
-    .css('top', top + 'px')
-    .attr('height', height);
+    .css('top', (top - 1) + 'px')
+    .attr('height', (height + 1));
 
   bridge
     .find('polygon')
@@ -393,7 +397,7 @@ $(function(){
   // sync up side-scrolling of left/right file panes
   $('.file .file-contents').on('scroll', function(e){
     var master = $(e.currentTarget),
-        other  = master.closest('.file').is('.file-left') ? 'right' : 'left'
+        other  = master.closest('.file').is('.file-left') ? 'right' : 'left',
         slave  = $('.file-' + other + ' .file-contents');
 
     slave.scrollLeft(master.scrollLeft());
