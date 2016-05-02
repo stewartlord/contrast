@@ -102,15 +102,16 @@ function loadDiff(left, right) {
       // tag changed lines with add/edit/delete action classes
       // and draw connection between the left and right hand side
       if (!chunk.same) {
-        chunkClass = 'action-' + chunk.action;
-        $(leftNumbers.slice(leftLine, leftLine + (leftSize || 1)))
-          .addClass(chunkClass).first().addClass('chunk-first');
-        $(leftLines.slice(leftLine, leftLine + (leftSize || 1)))
-          .addClass(chunkClass).first().addClass('chunk-first');
-        $(rightNumbers.slice((rightSize ? rightLine : rightLine - 1), rightLine + rightSize))
-          .addClass(chunkClass).first().addClass('chunk-first');
-        $(rightLines.slice((rightSize ? rightLine : rightLine - 1), rightLine + rightSize))
-          .addClass(chunkClass).first().addClass('chunk-first');
+        $.each([
+          leftNumbers.slice(leftLine, leftLine + (leftSize || 1)),
+          leftLines.slice(leftLine,   leftLine + (leftSize || 1)),
+          rightNumbers.slice((rightSize ? rightLine : rightLine - 1), rightLine + rightSize),
+          rightLines.slice((rightSize   ? rightLine : rightLine - 1), rightLine + rightSize)
+        ], function(){
+          this.addClass('action-' + chunk.action)
+              .first().addClass('chunk-first').end()
+              .last().addClass('chunk-last');
+        });
 
         drawBridge(chunk, 0, 0);
       }
@@ -272,42 +273,54 @@ function drawBridge(chunk, leftOffset, rightOffset, bridge) {
   if (bridge) {
     chunk  = bridge.data('chunk');
   } else {
-    bridge = $('<svg><polygon></polygon></svg>').appendTo('.river').data('chunk', chunk);
+    bridge = $('<svg><polygon /><line /><line /></svg>').appendTo('.river').data('chunk', chunk);
   }
 
   // we need four points to draw the bridge plus position and height in the river
   // initially we pretend the svg canvas starts at the top of the river, then we
   // crop off the top and push it down using relative positioning
+  // we draw the bridge 1px higher and 2px taller because the first and last lines
+  // of each chunk are drawn taller (to line-up with 2px ruler on pure adds/deletes)
   var align       = chunk.align,
       lineHeight  = getLineHeight(),
-      leftTop     = (align.left.first  * lineHeight) + leftOffset,
-      rightTop    = (align.right.first * lineHeight) + rightOffset,
-      rightBottom = rightTop + (align.right.size * lineHeight),
-      leftBottom  = leftTop  + (align.left.size  * lineHeight),
+      leftTop     = (align.left.first  * lineHeight) + leftOffset  - 1,
+      rightTop    = (align.right.first * lineHeight) + rightOffset - 1,
+      rightBottom = rightTop + (align.right.size * lineHeight) + 2,
+      leftBottom  = leftTop  + (align.left.size  * lineHeight) + 2,
       top         = Math.min(leftTop, rightTop),
-      height      = Math.max(leftBottom, rightBottom) - top,
-      points      = [
-        '0,'   + (leftTop     - top),
-        '100,' + (rightTop    - top),
-        '100,' + (rightBottom - top),
-        '0,'   + (leftBottom  - top)
-      ];
+      height      = Math.max(leftBottom, rightBottom) - top;
+
+  // if left or right side has zero size, don't allow the points to converge
+  // ensure they maintain a distance of 2px so they flow into our 2px ruler
+  leftBottom  = Math.max(leftBottom,  leftTop  + 2);
+  rightBottom = Math.max(rightBottom, rightTop + 2);
+  var points  = [
+    '0,'   + (leftTop     - top),
+    '100,' + (rightTop    - top),
+    '100,' + (rightBottom - top),
+    '0,'   + (leftBottom  - top)
+  ];
 
   // viewbox and aspect ratio must be set natively or they don't work - weird
   bridge[0].setAttribute('viewBox', '0,0 100,' + height);
   bridge[0].setAttribute('preserveAspectRatio', 'none');
 
-  // position bridge 1px higher and taller because the first line of each chunk
-  // is drawn 1px higher and taller (to line-up with ruler on pure adds/deletes)
   bridge
     .addClass('bridge action-' + chunk.action)
-    .css('top', (top - 1) + 'px')
-    .attr('height', (height + 1));
+    .css('top', top + 'px')
+    .attr('height', height);
 
+  // draw the body of the connecting shape
   bridge
     .find('polygon')
     .attr('preserveAspectRatio', 'none')
     .attr('points', points.join(' '));
+
+  // draw lines across the top and bottom of the polygon so we can border it
+  // offset the line positions by 1px otherwise they get clipped by the canvas
+  var lines = bridge.find('line');
+  lines.first().attr({x1: 0, y1: (leftTop - top + 1),    x2: 100, y2: (rightTop - top + 1)});
+  lines.last().attr({ x1: 0, y1: (leftBottom - top - 1), x2: 100, y2: (rightBottom - top - 1)});
 }
 
 var lastLeftOffset  = 0,
