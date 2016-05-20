@@ -49,10 +49,10 @@ body {
   background-color: #fff;
 }
 .file-left {
-  border-right: 1px solid rgba(255, 255, 255, .15);
+  box-shadow: 1px 0 0 0 rgba(255, 255, 255, .15);
 }
 .file-right {
-  border-left: 1px solid rgba(255, 255, 255, .15);
+  box-shadow: -1px 0 0 0 rgba(255, 255, 255, .15);
 }
 .file .file-offset {
   position: relative;
