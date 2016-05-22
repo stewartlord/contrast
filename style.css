@@ -75,20 +75,6 @@ div.line {
   height: 24px;
   padding: 0 5px;
 }
-div.line.chunk-first {
-  margin-top: -1px;
-  height: 25px;
-  line-height: 25px;
-}
-div.line.chunk-last {
-  margin-bottom: -1px;
-  height: 25px;
-  line-height: 25px;
-}
-div.line.chunk-first.chunk-last {
-  height: 26px;
-  line-height: 26px;
-}
 div.line.action-delete {
   background-color: rgba(255, 96, 96, .25);
 }
@@ -98,19 +84,40 @@ div.line.action-add {
 div.line.action-edit {
   background-color: rgba(96, 96, 255, .25);
 }
-.file-left div.line.action-add,
-.file-right div.line.action-delete {
+div.line.chunk-first.action-delete {
+  box-shadow: 0 -1px 0 0 rgba(255, 96, 96, .25);
+}
+div.line.chunk-first.action-add {
+  box-shadow: 0 -1px 0 0 rgba(96, 255, 96, .25);
+}
+div.line.chunk-first.action-edit {
+  box-shadow: 0 -1px 0 0 rgba(96, 96, 255, .25);
+}
+div.line.chunk-last.action-delete {
+  box-shadow: 0 1px 0 0 rgba(255, 96, 96, .25);
+}
+div.line.chunk-last.action-add {
+  box-shadow: 0 1px 0 0 rgba(96, 255, 96, .25);
+}
+div.line.chunk-last.action-edit {
+  box-shadow: 0 1px 0 0 rgba(96, 96, 255, .25);
+}
+div.line.chunk-first.chunk-last.action-delete {
+  box-shadow: 0 -1px 0 0 rgba(255, 96, 96, .25), 0 1px 0 0 rgba(255, 96, 96, .25);
+}
+div.line.chunk-first.chunk-last.action-add {
+  box-shadow: 0 -1px 0 0 rgba(96, 255, 96, .25), 0 1px 0 0 rgba(96, 255, 96, .25);
+}
+div.line.chunk-first.chunk-last.action-edit {
+  box-shadow: 0 -1px 0 0 rgba(96, 96, 255, .25), 0 1px 0 0 rgba(96, 96, 255, .25);
+}
+.file-left div.line.chunk-first.chunk-last.action-add {
+  box-shadow: 0 -1px 0 0 rgba(96, 255, 96, .25), inset 0 1px 0 0 rgba(96, 255, 96, .25);
   background-color: transparent;
-  height: 25px;
-  line-height: 25px;
 }
-.file-left div.line.action-add {
-  border-top: 2px solid rgba(96, 255, 96, .25);
-  margin: -1px 0 0 0;
-}
-.file-right div.line.action-delete {
-  border-bottom: 2px solid rgba(255, 96, 96, .25);
-  margin: 0 0 -1px 0;
+.file-right div.line.chunk-first.chunk-last.action-delete {
+  box-shadow: 0 1px 0 0 rgba(255, 96, 96, .25), inset 0 -1px 0 0 rgba(255, 96, 96, .25);
+  background-color: transparent;
 }
 
 /* sub-chunks */
@@ -126,16 +133,6 @@ div.line span {
   min-width: 2px;
   min-height: 24px;
   margin: 0 -1px;
-}
-.file-left .chunk-first .sub-chunk.action-add,
-.file-left .chunk-last .sub-chunk.action-add,
-.file-right .chunk-first .sub-chunk.action-delete,
-.file-right .chunk-last .sub-chunk.action-delete {
-  min-height: 25px;
-}
-.file-left .chunk-first.chunk-last .sub-chunk.action-add,
-.file-right .chunk-first.chunk-last .sub-chunk.action-delete {
-  min-height: 26px;
 }
 
 /* file gutter and line numbers */
