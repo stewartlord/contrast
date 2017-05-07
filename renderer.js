@@ -7,7 +7,6 @@ const electron   = require('electron');
 const fs         = require('fs');
 const highlights = require('highlights');
 const path       = require('path');
-const remote     = require('remote');
 
 // listen for what files to diff
 var left, right;
@@ -338,8 +337,8 @@ function updateBridges(leftOffset, rightOffset) {
 }
 
 function getThemeMenu() {
-  var Menu = remote.require('menu'),
-      Item = remote.require('menu-item'),
+  var Menu = electron.remote.require('menu'),
+      Item = electron.remote.require('menu-item'),
       menu = new Menu();
 
   var themes = [

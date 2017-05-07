@@ -4,12 +4,9 @@
   "description": "A diff tool",
   "main": "main.js",
   "scripts": {
-    "start": "electron main.js --dev"
+    "start": "electron . --dev"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/stewartlord/contrast.git"
-  },
+  "repository": "https://github.com/stewartlord/contrast.git",
   "keywords": [
     "Contrast",
     "diff",
@@ -22,12 +19,13 @@
   },
   "homepage": "https://github.com/stewartlord/contrast#readme",
   "dependencies": {
-    "jquery": "^2.2.0",
-    "highlights": "^1.3.1",
-    "diff": "^2.2.1",
-    "font-awesome": "^4.5.0"
+    "jquery": "^3.2.0",
+    "diff": "^3.2.0",
+    "font-awesome": "^4.7.0",
+    "highlights": "^3.0.0"
   },
   "devDependencies": {
-    "electron-prebuilt": "^0.36.0"
+    "electron": "^1.6.2",
+    "electron-rebuild": "^1.5.7"
   }
 }
