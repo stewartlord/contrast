@@ -33,6 +33,7 @@ body {
 /* file containers */
 .file {
   flex: 1;
+  min-width: 0;
   box-sizing: border-box;
   padding: 2px 0;
   font-size: 16px;
