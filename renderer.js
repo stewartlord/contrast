@@ -368,6 +368,43 @@ function getCurrentTheme() {
   return $('link.theme').attr('href');
 }
 
+function scrollX(body, delta) {
+  let left   = $('.file-left .file-contents')[0];
+  let right  = $('.file-right .file-contents')[0];
+  let master = left.scrollWidth > right.scrollWidth ? left  : right;
+  let slave  = left.scrollWidth > right.scrollWidth ? right : left;
+
+  master.scrollLeft += delta;
+  slave.scrollLeft   = master.scrollLeft;
+}
+
+function scrollY(body, delta) {
+  body.scrollTop += delta;
+
+  var scrollTop   = body.scrollTop,
+      lineHeight  = getLineHeight(),
+      focalPoint  = Math.floor($(window).height() / 3) + scrollTop,
+      focalLine   = Math.floor(focalPoint / lineHeight);
+
+  // line-up first line in each chunk
+  var chunk       = chunksByLine[Math.min(focalLine, chunksByLine.length - 1)],
+      align       = chunk.align,
+      leftOffset  = (align.river.first - align.left.first)  * lineHeight,
+      rightOffset = (align.river.first - align.right.first) * lineHeight;
+
+  // what percentage of the way through this chunk are we?
+  // the smaller side should get edged down by % of it's deficit
+  var percent     = ((focalPoint/lineHeight) - align.river.first) / align.river.size;
+  leftOffset     += percent * (align.river.size - align.left.size)  * lineHeight;
+  rightOffset    += percent * (align.river.size - align.right.size) * lineHeight;
+
+  $('.file-left  .file-offset').css('top', leftOffset  + 'px');
+  $('.file-right .file-offset').css('top', rightOffset + 'px');
+
+  // redraw connecting svgs
+  updateBridges(leftOffset, rightOffset);
+}
+
 $(function(){
   // wire up the toolbar
   $('.toolbar .fa-refresh').click(refresh);
@@ -379,39 +416,23 @@ $(function(){
     );
   });
 
+  // take over scrolling via mouse 'wheel' events
   // align changes when they scroll to a point 1/3 of the way down the window
   // find the line that corresponds to this point based on line-height
-  $(window).on('scroll', function(){
-    var scrollTop   = $(window).scrollTop(),
-        lineHeight  = getLineHeight(),
-        focalPoint  = Math.floor($(window).height() / 3) + scrollTop,
-        focalLine   = Math.floor(focalPoint / lineHeight);
+  let body = $('body');
+  body.on('wheel', function(event){
+    event.preventDefault();
+    event.stopPropagation();
 
-    // line-up first line in each chunk
-    var chunk       = chunksByLine[Math.min(focalLine, chunksByLine.length - 1)],
-        align       = chunk.align,
-        leftOffset  = (align.river.first - align.left.first)  * lineHeight,
-        rightOffset = (align.river.first - align.right.first) * lineHeight;
+    let deltaY = event.originalEvent.deltaY;
+    let deltaX = event.originalEvent.deltaX;
 
-    // what percentage of the way through this chunk are we?
-    // the smaller side should get edged down by % of it's deficit
-    var percent     = ((focalPoint/lineHeight) - align.river.first) / align.river.size;
-    leftOffset     += percent * (align.river.size - align.left.size)  * lineHeight;
-    rightOffset    += percent * (align.river.size - align.right.size) * lineHeight;
-
-    $('.file-left  .file-offset').css('top', leftOffset  + 'px');
-    $('.file-right .file-offset').css('top', rightOffset + 'px');
-
-    // redraw connecting svgs
-    updateBridges(leftOffset, rightOffset);
-  });
-
-  // sync up side-scrolling of left/right file panes
-  $('.file .file-contents').on('scroll', function(e){
-    var master = $(e.currentTarget),
-        other  = master.closest('.file').is('.file-left') ? 'right' : 'left',
-        slave  = $('.file-' + other + ' .file-contents');
-
-    slave.scrollLeft(master.scrollLeft());
+    requestAnimationFrame(function() {
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        scrollX(body[0], event.originalEvent.deltaX);
+      } else {
+        scrollY(body[0], event.originalEvent.deltaY);
+      }
+    });
   });
 });
