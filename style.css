@@ -61,6 +61,9 @@ body {
 .file .file-contents {
   overflow-x: scroll;
 }
+.file .file-contents::-webkit-scrollbar {
+  display: none;
+}
 .file .file-contents pre {
   font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
   display: inline-block;
@@ -177,7 +180,7 @@ div.line span {
   border-bottom: 1px solid #000;
 }
 .dark-theme .toolbar .fa {
-  color: #aaa;
+  color: #ccc;
 }
 .dark-theme .toolbar .fa:hover {
   color: #fff;
