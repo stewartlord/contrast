@@ -337,8 +337,8 @@ function updateBridges(leftOffset, rightOffset) {
 }
 
 function getThemeMenu() {
-  var Menu = electron.remote.require('menu'),
-      Item = electron.remote.require('menu-item'),
+  var Menu = electron.remote.Menu,
+      Item = electron.remote.MenuItem,
       menu = new Menu();
 
   var themes = [
@@ -410,7 +410,7 @@ $(function(){
   $('.toolbar .fa-refresh').click(refresh);
   $('.toolbar .fa-paint-brush').click(function(){
     getThemeMenu().popup(
-      remote.getCurrentWindow(),
+      electron.remote.getCurrentWindow(),
       Math.round($(this).position().left),
       Math.round($(this).position().top + $(this).outerHeight())
     );
