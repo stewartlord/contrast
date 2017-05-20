@@ -9,8 +9,13 @@
   </head>
   <body>
     <div class="toolbar">
-      <i title="Refresh" class="fa fa-refresh"></i>
-      <i title="Theme" class="fa fa-paint-brush"></i>
+      <span title="Refresh" class="control refresh">
+        <i class="fa fa-refresh"></i>
+      </span>
+      <span title="Theme" class="control theme">
+        <i class="fa fa-paint-brush"></i>
+        <i class="fa fa-caret-down"></i>
+      </span>
     </div>
     <div class="file file-left">
       <div class="file-offset">
@@ -27,6 +32,6 @@
     </div>
     <script>
       require('./renderer.js')
-    </script>  
+    </script>
   </body>
 </html>

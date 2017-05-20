@@ -407,8 +407,8 @@ function scrollY(body, delta) {
 
 $(function(){
   // wire up the toolbar
-  $('.toolbar .fa-refresh').click(refresh);
-  $('.toolbar .fa-paint-brush').click(function(){
+  $('.toolbar .refresh').click(refresh);
+  $('.toolbar .theme').click(function(){
     getThemeMenu().popup(
       electron.remote.getCurrentWindow(),
       Math.round($(this).position().left),

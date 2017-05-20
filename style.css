@@ -20,13 +20,24 @@ body {
   padding: 0 8px;
   background-color: #f7f7f7;
   border-bottom: 1px solid #ddd;
+  font-family: sans-serif;
 }
-.toolbar .fa {
-  padding: 8px;
+.toolbar .control {
+  display: inline-block;
+  padding: 6px;
+}
+.toolbar .control .label {
+  color: #555;
+  position: relative;
+  top: -3px;
+}
+.toolbar .control .fa {
   font-size: 24px;
+  padding: 2px;
   color: #555;
 }
-.toolbar .fa:hover {
+.toolbar .control:hover .label,
+.toolbar .control:hover .fa {
   color: #000;
 }
 
@@ -179,10 +190,12 @@ div.line span {
   background-color: #292c2f;
   border-bottom: 1px solid #000;
 }
-.dark-theme .toolbar .fa {
+.dark-theme .toolbar .control .label,
+.dark-theme .toolbar .control .fa {
   color: #ccc;
 }
-.dark-theme .toolbar .fa:hover {
+.dark-theme .toolbar .control:hover .label,
+.dark-theme .toolbar .control:hover .fa {
   color: #fff;
 }
 .dark-theme .file {
