@@ -435,4 +435,16 @@ $(function(){
       }
     });
   });
+
+  // find all git repositories in the user's home directory
+  let gitWorker = new Worker('find-repos.js');
+  gitWorker.onmessage = function(event) {
+    for (let repository of event.data) {
+      let parts = repository.split(path.sep);
+      let label = parts[parts.length - 1];
+      let shortLabel = label.substring(0, 2);
+
+      $(`<div class="button" title="${label}">${shortLabel}</div>`).insertBefore('.sidebar .add');
+    }
+  }
 });
