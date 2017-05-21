@@ -1,3 +1,5 @@
+'use strict';
+
 const fs   = require('fs');
 const os   = require('os');
 const path = require('path');
@@ -7,7 +9,9 @@ let repos = [];
 function findRepos(directory) {
   let entries = fs.readdirSync(directory);
   for (let entry of entries) {
-    fullPath = path.join(directory, entry);
+    let fullPath = path.join(directory, entry);
+    let isDirectory = false;
+
     try {
       isDirectory = fs.statSync(fullPath).isDirectory();
     } catch (error) {
@@ -20,7 +24,10 @@ function findRepos(directory) {
     }
 
     if (entry === '.git') {
-      repos.push(directory);
+      repos.push({
+          path: directory,
+          name: path.basename(directory)
+      });
       continue;
     }
 

@@ -7,7 +7,8 @@ const electron   = require('electron');
 const fs         = require('fs');
 const highlights = require('highlights');
 const path       = require('path');
-const vue        = require('vue/dist/vue');
+const sidebar    = require('./components/sidebar')
+const Vue        = require('vue/dist/vue');
 
 // listen for what files to diff
 var left, right;
@@ -436,31 +437,17 @@ $(function(){
       }
     });
   });
-
-  // find all git repositories in the user's home directory
-  let gitWorker = new Worker('find-repos.js');
-  gitWorker.onmessage = function(event) {
-    for (let repository of event.data) {
-      let parts = repository.split(path.sep);
-      let label = parts[parts.length - 1];
-      let shortLabel = label.substring(0, 2);
-
-      $(`<div class="button" title="${label}">${shortLabel}</div>`).insertBefore('.sidebar .add');
-    }
-  }
 });
 
 // instantiate the Contrast (Vue.js) application
-let contrast = new vue({
+let contrast = new Vue({
   el: 'contrast',
   data: function () {
     return {};
   },
   template: `
     <div class="contrast">
-      <div class="sidebar">
-        <div class="button add">+</div>
-      </div>
+      <sidebar></sidebar>
       <div class="toolbar">
         <span title="Refresh" class="control refresh">
           <i class="fa fa-refresh"></i>
