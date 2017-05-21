@@ -8,33 +8,12 @@
     <link href="style.css" rel="stylesheet">
   </head>
   <body>
-    <div class="sidebar">
-      <div class="button add">+</div>
-    </div>
-    <div class="toolbar">
-      <span title="Refresh" class="control refresh">
-        <i class="fa fa-refresh"></i>
-      </span>
-      <span title="Theme" class="control theme">
-        <i class="fa fa-paint-brush"></i>
-        <i class="fa fa-caret-down"></i>
-      </span>
-    </div>
-    <div class="file file-left">
-      <div class="file-offset">
-        <div class="file-gutter"></div>
-        <div class="file-contents"></div>
-      </div>
-    </div>
-    <div class="river"></div>
-    <div class="file file-right">
-      <div class="file-offset">
-        <div class="file-gutter"></div>
-        <div class="file-contents"></div>
-      </div>
-    </div>
+
+    <!-- this is where the bulk of the application is rendered -->
+    <contrast></contrast>
+
     <script>
-      require('./renderer.js')
+      require('./renderer')
     </script>
   </body>
 </html>

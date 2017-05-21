@@ -1,7 +1,11 @@
-html {
-  height: 100%;
-}
+html,
 body {
+  height: 100%;
+  margin: 0;
+}
+
+/* our app container */
+.contrast {
   display: flex;
   min-height: 100%;
   margin: 0;
@@ -40,7 +44,7 @@ body {
 }
 .sidebar .button.add {
   font-size: 1.8em;
-  background-color: #888;
+  background-color: #777;
   color: #ddd;
 }
 .sidebar .button.active,
@@ -237,7 +241,7 @@ div.line span {
 }
 
 /* adjust for dark themes */
-.dark-theme body {
+.dark-theme .contrast {
   background: #111;
 }
 .dark-theme .sidebar {

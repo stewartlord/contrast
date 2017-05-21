@@ -7,6 +7,7 @@ const electron   = require('electron');
 const fs         = require('fs');
 const highlights = require('highlights');
 const path       = require('path');
+const vue        = require('vue/dist/vue');
 
 // listen for what files to diff
 var left, right;
@@ -447,4 +448,41 @@ $(function(){
       $(`<div class="button" title="${label}">${shortLabel}</div>`).insertBefore('.sidebar .add');
     }
   }
+});
+
+// instantiate the Contrast (Vue.js) application
+let contrast = new vue({
+  el: 'contrast',
+  data: function () {
+    return {};
+  },
+  template: `
+    <div class="contrast">
+      <div class="sidebar">
+        <div class="button add">+</div>
+      </div>
+      <div class="toolbar">
+        <span title="Refresh" class="control refresh">
+          <i class="fa fa-refresh"></i>
+        </span>
+        <span title="Theme" class="control theme">
+          <i class="fa fa-paint-brush"></i>
+          <i class="fa fa-caret-down"></i>
+        </span>
+      </div>
+      <div class="file file-left">
+        <div class="file-offset">
+          <div class="file-gutter"></div>
+          <div class="file-contents"></div>
+        </div>
+      </div>
+      <div class="river"></div>
+      <div class="file file-right">
+        <div class="file-offset">
+          <div class="file-gutter"></div>
+          <div class="file-contents"></div>
+        </div>
+      </div>
+    </div>
+  `
 });
