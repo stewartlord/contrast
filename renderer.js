@@ -439,6 +439,7 @@ let contrast = new Vue({
   el: 'contrast',
   data: function () {
     return {
+      activeRepository: null,
       toolbarButtons: [{
         label: 'Refresh',
         className: 'refresh',
@@ -454,9 +455,17 @@ let contrast = new Vue({
       unstagedFiles: []
     };
   },
+  methods: {
+    activateRepository (repository) {
+      this.activeRepository = repository;
+    }
+  },
   template: `
     <div class="contrast">
-      <sidebar></sidebar>
+      <sidebar
+        v-bind:activeRepository="activeRepository"
+        v-on:activateRepository="activateRepository">
+      </sidebar>
       <toolbar v-bind:buttons="toolbarButtons"></toolbar>
       <file-list v-bind:heading="'Staged'" v-bind:files="stagedFiles"></file-list>
       <file-list v-bind:heading="'Unstaged'" v-bind:files="unstagedFiles"></file-list>
