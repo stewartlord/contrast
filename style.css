@@ -105,8 +105,8 @@ body {
   min-width: 0;
   box-sizing: border-box;
   padding: 2px 0;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 14px;
+  line-height: 22px;
   background-color: #fff;
 }
 .file::before {
@@ -145,7 +145,7 @@ body {
 /* file lines */
 div.line {
   box-sizing: border-box;
-  height: 24px;
+  height: 22px;
   padding: 0 5px;
 }
 div.line.action-delete {
@@ -204,7 +204,7 @@ div.line span {
 .file-right .sub-chunk.action-delete {
   vertical-align: bottom;
   min-width: 2px;
-  min-height: 24px;
+  min-height: 22px;
   margin: 0 -1px;
 }
 
