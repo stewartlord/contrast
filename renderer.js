@@ -345,8 +345,8 @@ function getThemeMenu() {
       menu = new Menu();
 
   var themes = [
-    {label: 'Atom Dark',  file: 'themes/atom-dark-syntax.css'},
-    {label: 'Atom Light', file: 'themes/atom-light-syntax.css'}
+    {label: 'Dark',  file: 'themes/atom-dark-syntax.css'},
+    {label: 'Light', file: 'themes/atom-light-syntax.css'}
   ];
 
   for (let i = 0; i < themes.length; i++) {

@@ -11,7 +11,7 @@ body {
   margin: 0;
   padding-top: 40px;
   padding-left: 60px;
-  background: #f7f7f7;
+  background: #fff;
 }
 
 /* sidebar */
@@ -23,7 +23,7 @@ body {
   left: 0;
   z-index: 200;
   width: 60px;
-  background-color: #f7f7f7;
+  background-color: #f5f5f5;
   border-right: 1px solid #ddd;
   font-family: sans-serif;
   padding: 11px;
@@ -76,23 +76,18 @@ body {
   height: 40px;
   width: 100%;
   padding: 0 8px;
-  background-color: #f7f7f7;
+  background-color: #f5f5f5;
   border-bottom: 1px solid #ddd;
   font-family: sans-serif;
 }
 .toolbar .button {
   display: inline-block;
   padding: 6px;
-}
-.toolbar .button .label {
   color: #555;
-  position: relative;
-  top: -3px;
 }
 .toolbar .button .fa {
   font-size: 24px;
   padding: 2px;
-  color: #555;
 }
 .toolbar .button:hover .label,
 .toolbar .button:hover .fa {
@@ -242,15 +237,15 @@ div.line span {
 
 /* adjust for dark themes */
 .dark-theme .contrast {
-  background: #111;
+  background-color: #222;
 }
 .dark-theme .sidebar {
-  background-color: #21252b;
-  border-right: 1px solid #000;
+  background-color: #333;
+  border-right: 1px solid #111;
 }
 .dark-theme .toolbar {
-  background-color: #21252b;
-  border-bottom: 1px solid #000;
+  background-color: #333;
+  border-bottom: 1px solid #111;
 }
 .dark-theme .toolbar .button .label,
 .dark-theme .toolbar .button .fa {
