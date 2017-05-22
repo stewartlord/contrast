@@ -7,6 +7,7 @@ body {
 /* our app container */
 .contrast {
   display: flex;
+  flex-direction: column;
   min-height: 100%;
   margin: 0;
   padding-top: 40px;
@@ -92,6 +93,27 @@ body {
 .toolbar .button:hover .label,
 .toolbar .button:hover .fa {
   color: #000;
+}
+
+/* file lists */
+.file-list .header {
+  padding: 6px 14px;
+  font-family: sans-serif;
+  font-size: .7em;
+  border-bottom: 1px solid #ddd;
+  background-color: #f5f5f5;
+  color: #555;
+}
+.file-list .header .heading {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* changed-files */
+.changed-file .header {
+  padding: 8px 14px;
+  font-size: 1em;
+  background-color: #fff;
 }
 
 /* file containers */
@@ -254,6 +276,14 @@ div.line span {
 .dark-theme .toolbar .button:hover .label,
 .dark-theme .toolbar .button:hover .fa {
   color: #fff;
+}
+.dark-theme .file-list .header {
+  background-color: #333;
+  border-bottom: 1px solid #111;
+  color: #ccc;
+}
+.dark-theme .changed-file .header {
+  background-color: #222;
 }
 .dark-theme .file {
   background-color: #1d1f21;

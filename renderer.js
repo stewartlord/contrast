@@ -1,15 +1,19 @@
 'use strict';
 
-window.jQuery    = require('jquery');
-window.$         = window.jQuery;
 const diff       = require('diff');
 const electron   = require('electron');
 const fs         = require('fs');
 const highlights = require('highlights');
+const jQuery     = require('jquery');
 const path       = require('path');
-const sidebar    = require('./components/sidebar')
-const toolbar    = require('./components/toolbar')
 const Vue        = require('vue/dist/vue');
+
+const fileList   = require('./components/file-list');
+const sidebar    = require('./components/sidebar');
+const toolbar    = require('./components/toolbar');
+
+window.jQuery    = jQuery;
+window.$         = jQuery;
 
 // listen for what files to diff
 var left, right;
@@ -445,14 +449,18 @@ let contrast = new Vue({
         className: 'theme',
         iconClass: 'fa fa-paint-brush',
         menu: getThemeMenu
-      }]
+      }],
+      stagedFiles: [],
+      unstagedFiles: []
     };
   },
   template: `
     <div class="contrast">
       <sidebar></sidebar>
       <toolbar v-bind:buttons="toolbarButtons"></toolbar>
-      <div class="file file-left">
+      <file-list v-bind:heading="'Staged'" v-bind:files="stagedFiles"></file-list>
+      <file-list v-bind:heading="'Unstaged'" v-bind:files="unstagedFiles"></file-list>
+      <!-- <div class="file file-left">
         <div class="file-offset">
           <div class="file-gutter"></div>
           <div class="file-contents"></div>
@@ -464,7 +472,7 @@ let contrast = new Vue({
           <div class="file-gutter"></div>
           <div class="file-contents"></div>
         </div>
-      </div>
+      </div> -->
     </div>
   `
 });
