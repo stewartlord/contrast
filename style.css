@@ -80,22 +80,22 @@ body {
   border-bottom: 1px solid #ddd;
   font-family: sans-serif;
 }
-.toolbar .control {
+.toolbar .button {
   display: inline-block;
   padding: 6px;
 }
-.toolbar .control .label {
+.toolbar .button .label {
   color: #555;
   position: relative;
   top: -3px;
 }
-.toolbar .control .fa {
+.toolbar .button .fa {
   font-size: 24px;
   padding: 2px;
   color: #555;
 }
-.toolbar .control:hover .label,
-.toolbar .control:hover .fa {
+.toolbar .button:hover .label,
+.toolbar .button:hover .fa {
   color: #000;
 }
 
@@ -252,12 +252,12 @@ div.line span {
   background-color: #21252b;
   border-bottom: 1px solid #000;
 }
-.dark-theme .toolbar .control .label,
-.dark-theme .toolbar .control .fa {
+.dark-theme .toolbar .button .label,
+.dark-theme .toolbar .button .fa {
   color: #ccc;
 }
-.dark-theme .toolbar .control:hover .label,
-.dark-theme .toolbar .control:hover .fa {
+.dark-theme .toolbar .button:hover .label,
+.dark-theme .toolbar .button:hover .fa {
   color: #fff;
 }
 .dark-theme .file {

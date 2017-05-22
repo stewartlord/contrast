@@ -8,6 +8,7 @@ const fs         = require('fs');
 const highlights = require('highlights');
 const path       = require('path');
 const sidebar    = require('./components/sidebar')
+const toolbar    = require('./components/toolbar')
 const Vue        = require('vue/dist/vue');
 
 // listen for what files to diff
@@ -408,16 +409,6 @@ function scrollY(body, delta) {
 }
 
 $(function(){
-  // wire up the toolbar
-  $('.toolbar .refresh').click(refresh);
-  $('.toolbar .theme').click(function(){
-    getThemeMenu().popup(
-      electron.remote.getCurrentWindow(),
-      Math.round($(this).position().left),
-      Math.round($(this).position().top + $(this).outerHeight())
-    );
-  });
-
   // take over scrolling via mouse 'wheel' events
   // align changes when they scroll to a point 1/3 of the way down the window
   // find the line that corresponds to this point based on line-height
@@ -443,20 +434,24 @@ $(function(){
 let contrast = new Vue({
   el: 'contrast',
   data: function () {
-    return {};
+    return {
+      toolbarButtons: [{
+        label: 'Refresh',
+        className: 'refresh',
+        iconClass: 'fa fa-refresh',
+        click: refresh
+      }, {
+        label: 'Theme',
+        className: 'theme',
+        iconClass: 'fa fa-paint-brush',
+        menu: getThemeMenu
+      }]
+    };
   },
   template: `
     <div class="contrast">
       <sidebar></sidebar>
-      <div class="toolbar">
-        <span title="Refresh" class="control refresh">
-          <i class="fa fa-refresh"></i>
-        </span>
-        <span title="Theme" class="control theme">
-          <i class="fa fa-paint-brush"></i>
-          <i class="fa fa-caret-down"></i>
-        </span>
-      </div>
+      <toolbar v-bind:buttons="toolbarButtons"></toolbar>
       <div class="file file-left">
         <div class="file-offset">
           <div class="file-gutter"></div>
