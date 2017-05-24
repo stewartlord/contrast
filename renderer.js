@@ -5,6 +5,7 @@ const electron   = require('electron');
 const fs         = require('fs');
 const highlights = require('highlights');
 const jQuery     = require('jquery');
+const NodeGit    = require("nodegit");
 const path       = require('path');
 const Vue        = require('vue/dist/vue');
 
@@ -458,6 +459,18 @@ let contrast = new Vue({
   methods: {
     activateRepository (repository) {
       this.activeRepository = repository;
+
+      // get status of this repository (staged/unstaged files)
+      this.stagedFiles = [];
+      this.unstagedFiles = [];
+      NodeGit.Repository.open(repository.path).then((repo) => {
+        repo.getStatus().then((statuses) => {
+          statuses.forEach((file) => {
+            if (file.inIndex())       this.stagedFiles.push(file);
+            if (file.inWorkingTree()) this.unstagedFiles.push(file);
+          });
+        });
+      });
     }
   },
   template: `

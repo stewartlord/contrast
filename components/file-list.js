@@ -12,7 +12,7 @@ Vue.component('file-list', {
   template: `
     <div class="file-list">
       <div class="header"><span class="heading">{{ heading }}</span></div>
-      <changed-file v-for="file in files" v-bind:file="file" v-bind:key="file.filename"></changed-file>
+      <changed-file v-for="file in files" v-bind:file="file" v-bind:key="file.path()"></changed-file>
     </div>
   `
 });

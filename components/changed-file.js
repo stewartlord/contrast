@@ -9,7 +9,7 @@ Vue.component('changed-file', {
   },
   template: `
     <div class="changed-file">
-      <div class="header"><span class="filename">{{ file.filename }}</span></div>
+      <div class="header"><span class="filename">{{ file.path() }}</span></div>
     </div>
   `
 });
