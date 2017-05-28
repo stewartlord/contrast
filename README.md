@@ -26,13 +26,13 @@ cd /Users/slord/Git/contrast/; npm start $LOCAL $REMOTE'
 
 ## To Do
 
+- Refresh file button
+- Stage/unstage file button
+- Refactor 'legacy' lib
+- Watch file-system changes
 - Add persistent config (preferences)
-- Fix growing list of reproducible bugs
-- Clean-up code (start using modules)
-- Add prev/next buttons
 - Change app name in menu
 - Make release build
-- Add ability to edit content
-- Everything else
+- Everything else...
 
 #### License [MIT](LICENSE)
