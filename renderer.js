@@ -41,6 +41,10 @@ let contrast = new Vue({
   data: function () {
     return {
       activeRepository: null,
+      files: {
+        index: [],
+        working: []
+      },
       toolbarButtons: [{
         label: 'Refresh',
         className: 'refresh',
@@ -51,25 +55,20 @@ let contrast = new Vue({
         className: 'theme',
         iconClass: 'fa fa-paint-brush',
         menu: legacy.getThemeMenu
-      }],
-      stagedFiles: [],
-      unstagedFiles: []
+      }]
     };
   },
   methods: {
-    activateRepository (repository) {
+    activateRepository: async function (repository) {
       this.activeRepository = repository;
 
       // get status of this repository (staged/unstaged files)
-      this.stagedFiles = [];
-      this.unstagedFiles = [];
-      NodeGit.Repository.open(repository.path).then((repo) => {
-        repo.getStatus().then((statuses) => {
-          statuses.forEach((file) => {
-            if (file.inIndex())       this.stagedFiles.push(file);
-            if (file.inWorkingTree()) this.unstagedFiles.push(file);
-          });
-        });
+      this.files   = {index: [], working: []};
+      const repo   = await NodeGit.Repository.open(repository.path);
+      const status = await repo.getStatus();
+      status.forEach((file) => {
+        if (file.inIndex())       this.files.index.push(file);
+        if (file.inWorkingTree()) this.files.working.push(file);
       });
     }
   },
@@ -82,14 +81,14 @@ let contrast = new Vue({
       <toolbar v-bind:buttons="toolbarButtons"></toolbar>
       <file-list
         v-bind:activeRepository="activeRepository"
-        v-bind:files="stagedFiles"
         v-bind:heading="'Staged'"
+        v-bind:files="files.index"
         v-bind:isIndexView="true">
       </file-list>
       <file-list
         v-bind:activeRepository="activeRepository"
-        v-bind:files="unstagedFiles"
         v-bind:heading="'Unstaged'"
+        v-bind:files="files.working"
         v-bind:isIndexView="false">
       </file-list>
     </div>
