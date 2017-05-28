@@ -1,14 +1,16 @@
 'use strict';
 
-const Vue = require('vue/dist/vue');
+const Vue    = require('vue/dist/vue');
+
+const legacy = require('../legacy');
 
 Vue.component('file-diff', {
-  props: ['file'],
+  props: ['getLeft', 'getRight'],
   data: function () {
     return {};
   },
   mounted: function () {
-    console.log('mounted outer');
+    legacy.loadDiff(this.getLeft(), this.getRight());
   },
   template: `
     <div class="file-diff">
