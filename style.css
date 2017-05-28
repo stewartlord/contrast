@@ -125,6 +125,7 @@ body {
 .file-diff {
   display: flex;
   position: relative;
+  border-bottom: 1px solid #ddd;
 }
 
 /* file containers */
@@ -295,6 +296,9 @@ div.line span {
 }
 .dark-theme .file-status .header {
   background-color: #222;
+}
+.dark-theme .file-diff {
+  border-bottom: 1px solid #111;
 }
 .dark-theme .file {
   background-color: #1d1f21;
