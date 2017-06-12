@@ -51,6 +51,13 @@
       ctx.fillStyle = gradient;
       ctx.arc(512, 512, 475, 0, Math.PI*2, false);
       ctx.fill();
+
+      // white wash (watermark)
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.fillStyle='rgba(255,255,255,.75)';
+      ctx.fillRect(0, 0, 1024, 1024);
+
+
     </script>
   </body>
 </html>
