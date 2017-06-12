@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <title>Contrast Icon</title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      // light blue
+      color = '#64B5F6';
+
+      var icon = document.createElement('canvas');
+      var ctx = icon.getContext('2d');
+      document.body.appendChild(icon);
+      icon.setAttribute('width', 1024);
+      icon.setAttribute('height', 1024);
+
+      // setup drop-shadow
+      ctx.shadowColor = 'rgba(0,0,0,.5)';
+      ctx.shadowBlur = 25;
+      ctx.shadowOffsetY = 5;
+
+      // draw base circle
+      ctx.beginPath();
+      ctx.arc(512, 512, 475, 0, Math.PI*2, false);
+      ctx.fillStyle='#fff';
+      ctx.fill();
+
+      // disable drop-shadow
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+
+      // draw outer circle
+      ctx.beginPath();
+      ctx.arc(512, 512, 395, 0, Math.PI*2, false);
+      ctx.lineWidth = 100;
+      ctx.strokeStyle=color;
+      ctx.stroke();
+
+      // draw inner half-circle
+      ctx.beginPath();
+      ctx.arc(512, 512, 200, Math.PI + Math.PI/2, Math.PI/2, true);
+      ctx.fillStyle=color;
+      ctx.fill();
+
+      // gradient overlay
+      ctx.globalCompositeOperation = 'overlay';
+      var gradient = ctx.createLinearGradient(512, 0, 512, 1024);
+      gradient.addColorStop(0, 'rgba(255,255,255,.4)');
+      gradient.addColorStop(0.4, 'rgba(255,255,255,0)');
+      gradient.addColorStop(0.6, 'rgba(0,0,0,0)');
+      gradient.addColorStop(1, 'rgba(0,0,0,.4)');
+      ctx.fillStyle = gradient;
+      ctx.arc(512, 512, 475, 0, Math.PI*2, false);
+      ctx.fill();
+    </script>
+  </body>
+</html>
