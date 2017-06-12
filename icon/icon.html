@@ -4,8 +4,13 @@
   </head>
   <body>
     <script type="text/javascript">
+      let makeBackground = true;
+
       // light blue
-      color = '#64B5F6';
+      let color = '#42A5F5';
+      if (makeBackground) {
+        color = '#777';
+      }
 
       var icon = document.createElement('canvas');
       var ctx = icon.getContext('2d');
@@ -14,13 +19,15 @@
       icon.setAttribute('height', 1024);
 
       // setup drop-shadow
-      ctx.shadowColor = 'rgba(0,0,0,.5)';
-      ctx.shadowBlur = 25;
-      ctx.shadowOffsetY = 5;
+      if (!makeBackground) {
+        ctx.shadowColor = 'rgba(0,0,0,.5)';
+        ctx.shadowBlur = 40;
+        ctx.shadowOffsetY = 10;
+      }
 
       // draw base circle
       ctx.beginPath();
-      ctx.arc(512, 512, 475, 0, Math.PI*2, false);
+      ctx.arc(512, 512, 450, 0, Math.PI*2, false);
       ctx.fillStyle='#fff';
       ctx.fill();
 
@@ -30,34 +37,82 @@
 
       // draw outer circle
       ctx.beginPath();
-      ctx.arc(512, 512, 395, 0, Math.PI*2, false);
+      ctx.arc(512, 512, 370, 0, Math.PI*2, false);
       ctx.lineWidth = 100;
+      ctx.strokeStyle=color;
+      ctx.stroke();
+
+      // draw inner circle
+      ctx.beginPath();
+      ctx.arc(512, 512, 185, 0, Math.PI*2, false);
+      ctx.lineWidth = 7;
       ctx.strokeStyle=color;
       ctx.stroke();
 
       // draw inner half-circle
       ctx.beginPath();
-      ctx.arc(512, 512, 200, Math.PI + Math.PI/2, Math.PI/2, true);
+      ctx.arc(512, 512, 185, Math.PI + Math.PI/2, Math.PI/2, true);
       ctx.fillStyle=color;
       ctx.fill();
 
       // gradient overlay
       ctx.globalCompositeOperation = 'overlay';
       var gradient = ctx.createLinearGradient(512, 0, 512, 1024);
-      gradient.addColorStop(0, 'rgba(255,255,255,.4)');
+      gradient.addColorStop(0, 'rgba(255,255,255,.6)');
       gradient.addColorStop(0.4, 'rgba(255,255,255,0)');
       gradient.addColorStop(0.6, 'rgba(0,0,0,0)');
-      gradient.addColorStop(1, 'rgba(0,0,0,.4)');
+      gradient.addColorStop(1, 'rgba(0,0,0,.6)');
       ctx.fillStyle = gradient;
-      ctx.arc(512, 512, 475, 0, Math.PI*2, false);
+      ctx.arc(512, 512, 450, 0, Math.PI*2, false);
       ctx.fill();
 
-      // white wash (watermark)
-      ctx.globalCompositeOperation = 'source-atop';
-      ctx.fillStyle='rgba(255,255,255,.75)';
-      ctx.fillRect(0, 0, 1024, 1024);
+      if (makeBackground) {
+        // white wash (watermark)
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillStyle='rgba(255,255,255,.85)';
+        ctx.fillRect(0, 0, 1024, 1024);
 
+        // drag/drop arrow - reset drawing style
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = '#000';
 
+        // horizontal line
+        ctx.beginPath();
+        ctx.moveTo(400, 512);
+        ctx.lineTo(664, 512);
+        ctx.stroke();
+
+        // feathers
+        ctx.beginPath();
+
+        // top
+        ctx.moveTo(400, 512);
+        ctx.lineTo(360, 472);
+        ctx.moveTo(425, 512);
+        ctx.lineTo(385, 472);
+        ctx.moveTo(450, 512);
+        ctx.lineTo(410, 472);
+
+        // bottom
+        ctx.moveTo(400, 512);
+        ctx.lineTo(360, 552);
+        ctx.moveTo(425, 512);
+        ctx.lineTo(385, 552);
+        ctx.moveTo(450, 512);
+        ctx.lineTo(410, 552);
+
+        ctx.stroke();
+
+        // arrowhead
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.moveTo(669, 515);
+        ctx.lineTo(624, 472);
+        ctx.moveTo(669, 509);
+        ctx.lineTo(624, 552);
+        ctx.stroke();
+      }
     </script>
   </body>
 </html>
