@@ -74,43 +74,21 @@
 
         // drag/drop arrow - reset drawing style
         ctx.globalCompositeOperation = 'source-over';
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 10;
         ctx.strokeStyle = '#000';
 
         // horizontal line
         ctx.beginPath();
         ctx.moveTo(400, 512);
-        ctx.lineTo(664, 512);
-        ctx.stroke();
-
-        // feathers
-        ctx.beginPath();
-
-        // top
-        ctx.moveTo(400, 512);
-        ctx.lineTo(360, 472);
-        ctx.moveTo(425, 512);
-        ctx.lineTo(385, 472);
-        ctx.moveTo(450, 512);
-        ctx.lineTo(410, 472);
-
-        // bottom
-        ctx.moveTo(400, 512);
-        ctx.lineTo(360, 552);
-        ctx.moveTo(425, 512);
-        ctx.lineTo(385, 552);
-        ctx.moveTo(450, 512);
-        ctx.lineTo(410, 552);
-
+        ctx.lineTo(624, 512);
         ctx.stroke();
 
         // arrowhead
-        ctx.lineWidth = 10;
         ctx.beginPath();
-        ctx.moveTo(669, 515);
-        ctx.lineTo(624, 472);
-        ctx.moveTo(669, 509);
-        ctx.lineTo(624, 552);
+        ctx.moveTo(624, 515);
+        ctx.lineTo(599, 482);
+        ctx.moveTo(624, 509);
+        ctx.lineTo(599, 542);
         ctx.stroke();
       }
     </script>
