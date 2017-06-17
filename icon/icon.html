@@ -74,20 +74,33 @@
 
         // drag/drop arrow - reset drawing style
         ctx.globalCompositeOperation = 'source-over';
-        ctx.lineWidth = 10;
+        ctx.lineWidth = 3;
         ctx.strokeStyle = '#000';
 
         // horizontal line
         ctx.beginPath();
+
         ctx.moveTo(400, 512);
+        ctx.lineTo(405, 512);
+
+        ctx.moveTo(410, 512);
+        ctx.lineTo(420, 512);
+
+        ctx.moveTo(430, 512);
+        ctx.lineTo(445, 512);
+
+        ctx.moveTo(460, 512);
+        ctx.lineTo(502, 512);
+
+        ctx.moveTo(522, 512);
         ctx.lineTo(624, 512);
         ctx.stroke();
 
         // arrowhead
         ctx.beginPath();
-        ctx.moveTo(624, 515);
+        ctx.moveTo(624, 513);
         ctx.lineTo(599, 482);
-        ctx.moveTo(624, 509);
+        ctx.moveTo(624, 511);
         ctx.lineTo(599, 542);
         ctx.stroke();
       }
