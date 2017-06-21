@@ -1,23 +1,26 @@
 {
-  "name": "contrast",
-  "version": "0.1.0",
-  "description": "A diff tool",
-  "main": "main.js",
-  "scripts": {
-    "start": "electron . --dev"
-  },
+  "name": "Contrast",
+  "version": "0.2.0",
+  "description": "A git diff tool",
+  "author": "Stewart Lord",
+  "license": "MIT",
+  "homepage": "https://github.com/stewartlord/contrast#readme",
   "repository": "https://github.com/stewartlord/contrast.git",
   "keywords": [
     "Contrast",
     "diff",
     "electron"
   ],
-  "author": "Stewart Lord",
-  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron . --dev",
+    "pack": "build --dir",
+    "dist": "build"
+  },
   "bugs": {
     "url": "https://github.com/stewartlord/contrast/issues"
   },
-  "homepage": "https://github.com/stewartlord/contrast#readme",
+  "postinstall": "install-app-deps",
   "dependencies": {
     "diff": "^3.2.0",
     "font-awesome": "^4.7.0",
@@ -28,6 +31,25 @@
   },
   "devDependencies": {
     "electron": "^1.6.2",
+    "electron-builder": "^18.7.0",
     "electron-rebuild": "^1.5.7"
+  },
+  "build": {
+    "appId": "contrast",
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "dmg": {
+      "contents": [{
+        "type": "file",
+        "x": 135,
+        "y": 265
+      }, {
+        "type": "link",
+        "path": "/Applications",
+        "x": 405,
+        "y": 265
+      }]
+    }
   }
 }
