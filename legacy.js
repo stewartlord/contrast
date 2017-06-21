@@ -6,20 +6,20 @@ const fs         = require('fs');
 const highlights = require('highlights');
 const path       = require('path');
 
-function refresh() {
+function refresh(target) {
   chunksByLine    = [];
   lineHeight      = null;
   lastLeftOffset  = 0,
   lastRightOffset = 0;
-  $('.file-contents, .file-gutter, .river').html("");
-  loadDiff(left, right);
+  target.find('.file-contents, .file-gutter, .river').html("");
+  loadDiff(target, left, right);
 }
 
 var chunksByLine = [];
-function loadDiff(left, right) {
+function loadDiff(target, left, right) {
   Promise.all([
-    loadFile(left,  $('.file-left')),
-    loadFile(right, $('.file-right'))
+    loadFile(left,  target.find('.file-left')),
+    loadFile(right, target.find('.file-right'))
   ]).then(function(values) {
     var i,
         isEdit  = false,
@@ -59,12 +59,12 @@ function loadDiff(left, right) {
         chunkClass   = '',
         chunkSize    = 0,
         riverLine    = 0,
-        leftNumbers  = $('.file-left .file-gutter div.line'),
-        leftLines    = $('.file-left .file-contents div.line'),
+        leftNumbers  = target.find('.file-left .file-gutter div.line'),
+        leftLines    = target.find('.file-left .file-contents div.line'),
         leftLine     = 0,
         leftSize     = 0,
-        rightNumbers = $('.file-right .file-gutter div.line'),
-        rightLines   = $('.file-right .file-contents div.line'),
+        rightNumbers = target.find('.file-right .file-gutter div.line'),
+        rightLines   = target.find('.file-right .file-contents div.line'),
         rightLine    = 0,
         rightSize    = 0;
 
@@ -98,7 +98,7 @@ function loadDiff(left, right) {
               .last().addClass('chunk-last');
         });
 
-        drawBridge(chunk, 0, 0);
+        drawBridge(target, chunk, 0, 0);
       }
 
       // do sub-chunk diffing on edits
@@ -115,7 +115,7 @@ function loadDiff(left, right) {
     }
 
     // river should be tall enough to scroll through tallest chunks
-    $('.river').css('min-height', (getLineHeight() * riverLine) + 'px');
+    target.find('.river').css('min-height', (getLineHeight(target) * riverLine) + 'px');
   });
 }
 
@@ -221,19 +221,16 @@ function unescapeHtml(html) {
 }
 
 var lineHeight;
-function getLineHeight() {
+function getLineHeight(target) {
   if (!lineHeight) {
-    lineHeight = $('div.line:first-child').first().height();
+    lineHeight = target.find('div.line:first-child').first().height();
   }
   return lineHeight;
 }
 
 function loadFile(file, container) {
   return new Promise(function(resolve, reject) {
-    //fs.readFile(file, 'utf8', function (error, data) {
     file.then((data) => {
-      // if (error) reject();
-
       // syntax highlight
       var html = new highlights().highlightSync({
         fileContents: data,
@@ -253,13 +250,14 @@ function loadFile(file, container) {
   });
 }
 
-function drawBridge(chunk, leftOffset, rightOffset, bridge) {
+function drawBridge(target, chunk, leftOffset, rightOffset, bridge) {
   // if bridge is given we are re-drawing an existing bridge
   // otherwise we need to make the bridge
   if (bridge) {
     chunk  = bridge.data('chunk');
   } else {
-    bridge = $('<svg><polygon /><line /><line /></svg>').appendTo('.river').data('chunk', chunk);
+    let river = target.find('.river');
+    bridge = $('<svg><polygon/><line/><line/></svg>').appendTo(river).data('chunk', chunk);
   }
 
   // we need four points to draw the bridge plus position and height in the river
@@ -268,7 +266,7 @@ function drawBridge(chunk, leftOffset, rightOffset, bridge) {
   // we draw the bridge 1px higher and 2px taller because the first and last lines
   // of each chunk are drawn taller (to line-up with 2px ruler on pure adds/deletes)
   var align       = chunk.align,
-      lineHeight  = getLineHeight(),
+      lineHeight  = getLineHeight(target),
       leftTop     = (align.left.first  * lineHeight) + leftOffset  - 1,
       rightTop    = (align.right.first * lineHeight) + rightOffset - 1,
       rightBottom = rightTop + (align.right.size * lineHeight) + 2,
@@ -309,18 +307,66 @@ function drawBridge(chunk, leftOffset, rightOffset, bridge) {
   lines.last().attr({ x1: 0, y1: (leftBottom - top - 1), x2: 100, y2: (rightBottom - top - 1)});
 }
 
+// @todo need to move these into component as well, can't be shared!
 var lastLeftOffset  = 0,
     lastRightOffset = 0;
-function updateBridges(leftOffset, rightOffset) {
+function updateBridges(target, leftOffset, rightOffset) {
   if (leftOffset === lastLeftOffset && rightOffset === lastRightOffset)
     return;
 
-  $('.bridge').each(function(){
-    drawBridge(null, leftOffset, rightOffset, $(this));
+  target.find('.bridge').each(function(){
+    drawBridge(target, null, leftOffset, rightOffset, $(this));
   });
 
   lastLeftOffset  = leftOffset;
   lastRightOffset = rightOffset;
+}
+
+function scrollX(body, delta) {
+  // if the mouse isn't over a file-diff, nothing to do
+  let target = $('.file-diff:hover').first();
+  if (!target.length) return;
+
+  let left   = target.find('.file-left .file-contents')[0];
+  let right  = target.find('.file-right .file-contents')[0];
+  let master = left.scrollWidth > right.scrollWidth ? left  : right;
+  let slave  = left.scrollWidth > right.scrollWidth ? right : left;
+
+  master.scrollLeft += delta;
+  slave.scrollLeft   = master.scrollLeft;
+}
+
+function scrollY(body, delta) {
+  body.scrollTop += delta;
+
+  // if the mouse isn't over a file-diff, all done
+  let target = $('.file-diff:hover').first();
+  if (!target.length) return;
+
+  // @todo focal-line calculation needs to be revisited now that we have multiple files
+  var scrollTop   = body.scrollTop,
+      lineHeight  = getLineHeight(target),
+      focalPoint  = Math.floor($(window).height() / 3) + scrollTop,
+      focalLine   = Math.floor(focalPoint / lineHeight);
+
+  // line-up first line in each chunk
+  // @todo chunksByLine data needs to be moved into the component
+  var chunk       = chunksByLine[Math.min(focalLine, chunksByLine.length - 1)],
+      align       = chunk.align,
+      leftOffset  = (align.river.first - align.left.first)  * lineHeight,
+      rightOffset = (align.river.first - align.right.first) * lineHeight;
+
+  // what percentage of the way through this chunk are we?
+  // the smaller side should get edged down by % of it's deficit
+  var percent     = ((focalPoint/lineHeight) - align.river.first) / align.river.size;
+  leftOffset     += percent * (align.river.size - align.left.size)  * lineHeight;
+  rightOffset    += percent * (align.river.size - align.right.size) * lineHeight;
+
+  target.find('.file-left  .file-offset').css('top', leftOffset  + 'px');
+  target.find('.file-right .file-offset').css('top', rightOffset + 'px');
+
+  // redraw connecting svgs
+  updateBridges(target, leftOffset, rightOffset);
 }
 
 function getThemeMenu() {
@@ -345,6 +391,7 @@ function getThemeMenu() {
   return menu;
 }
 
+// @todo - this should change state on the application
 function switchTheme(theme) {
   var isDark = theme.match(/dark/i) !== null;
   $('html').toggleClass('dark-theme', isDark).toggleClass('light-theme', !isDark);
@@ -353,43 +400,6 @@ function switchTheme(theme) {
 
 function getCurrentTheme() {
   return $('link.theme').attr('href');
-}
-
-function scrollX(body, delta) {
-  let left   = $('.file-left .file-contents')[0];
-  let right  = $('.file-right .file-contents')[0];
-  let master = left.scrollWidth > right.scrollWidth ? left  : right;
-  let slave  = left.scrollWidth > right.scrollWidth ? right : left;
-
-  master.scrollLeft += delta;
-  slave.scrollLeft   = master.scrollLeft;
-}
-
-function scrollY(body, delta) {
-  body.scrollTop += delta;
-
-  var scrollTop   = body.scrollTop,
-      lineHeight  = getLineHeight(),
-      focalPoint  = Math.floor($(window).height() / 3) + scrollTop,
-      focalLine   = Math.floor(focalPoint / lineHeight);
-
-  // line-up first line in each chunk
-  var chunk       = chunksByLine[Math.min(focalLine, chunksByLine.length - 1)],
-      align       = chunk.align,
-      leftOffset  = (align.river.first - align.left.first)  * lineHeight,
-      rightOffset = (align.river.first - align.right.first) * lineHeight;
-
-  // what percentage of the way through this chunk are we?
-  // the smaller side should get edged down by % of it's deficit
-  var percent     = ((focalPoint/lineHeight) - align.river.first) / align.river.size;
-  leftOffset     += percent * (align.river.size - align.left.size)  * lineHeight;
-  rightOffset    += percent * (align.river.size - align.right.size) * lineHeight;
-
-  $('.file-left  .file-offset').css('top', leftOffset  + 'px');
-  $('.file-right .file-offset').css('top', rightOffset + 'px');
-
-  // redraw connecting svgs
-  updateBridges(leftOffset, rightOffset);
 }
 
 module.exports = {

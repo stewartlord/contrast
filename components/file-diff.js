@@ -10,7 +10,7 @@ Vue.component('file-diff', {
     return {};
   },
   mounted: function () {
-    legacy.loadDiff(this.getLeft(), this.getRight());
+    legacy.loadDiff($(this.$el), this.getLeft(), this.getRight());
   },
   template: `
     <div class="file-diff">
