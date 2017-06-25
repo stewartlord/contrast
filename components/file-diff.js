@@ -12,8 +12,16 @@ Vue.component('file-diff', {
   mounted: function () {
     legacy.loadDiff($(this.$el), this.getLeft(), this.getRight());
   },
+  methods: {
+    activate: function (event) {
+      this.$emit('activate', this);
+    },
+    deactivate: function (event) {
+      this.$emit('deactivate', this);
+    }
+  },
   template: `
-    <div class="file-diff">
+    <div class="file-diff" v-on:mouseenter="activate" v-on:mouseleave="deactivate">
       <div class="file file-left">
         <div class="file-offset">
           <div class="file-gutter"></div>

@@ -322,11 +322,11 @@ function updateBridges(target, leftOffset, rightOffset) {
   lastRightOffset = rightOffset;
 }
 
-function scrollX(body, delta) {
-  // if the mouse isn't over a file-diff, nothing to do
-  let target = $('.file-diff:hover').first();
-  if (!target.length) return;
+function scrollX(app, body, delta) {
+  // if we don't have an active file-diff, nothing to do
+  if (!app.activeDiff) return;
 
+  let target = $(app.activeDiff.$el);
   let left   = target.find('.file-left .file-contents')[0];
   let right  = target.find('.file-right .file-contents')[0];
   let master = left.scrollWidth > right.scrollWidth ? left  : right;
@@ -336,29 +336,31 @@ function scrollX(body, delta) {
   slave.scrollLeft   = master.scrollLeft;
 }
 
-function scrollY(body, delta) {
+function scrollY(app, body, delta) {
   body.scrollTop += delta;
 
-  // if the mouse isn't over a file-diff, all done
-  let target = $('.file-diff:hover').first();
-  if (!target.length) return;
+  // if we don't have an active file-diff, all done
+  if (!app.activeDiff) return;
 
+  // align changes when they scroll to a point 1/3 of the way down the window
+  // find the line that corresponds to this point based on line-height
   // @todo focal-line calculation needs to be revisited now that we have multiple files
-  var scrollTop   = body.scrollTop,
-      lineHeight  = getLineHeight(target),
-      focalPoint  = Math.floor($(window).height() / 3) + scrollTop,
-      focalLine   = Math.floor(focalPoint / lineHeight);
+  let target      = $(app.activeDiff.$el);
+  let scrollTop   = body.scrollTop;
+  let lineHeight  = getLineHeight(target);
+  let focalPoint  = Math.floor($(window).height() / 3) + scrollTop;
+  let focalLine   = Math.floor(focalPoint / lineHeight);
 
   // line-up first line in each chunk
   // @todo chunksByLine data needs to be moved into the component
-  var chunk       = chunksByLine[Math.min(focalLine, chunksByLine.length - 1)],
-      align       = chunk.align,
-      leftOffset  = (align.river.first - align.left.first)  * lineHeight,
-      rightOffset = (align.river.first - align.right.first) * lineHeight;
+  let chunk       = chunksByLine[Math.min(focalLine, chunksByLine.length - 1)];
+  let align       = chunk.align;
+  let leftOffset  = (align.river.first - align.left.first)  * lineHeight;
+  let rightOffset = (align.river.first - align.right.first) * lineHeight;
 
   // what percentage of the way through this chunk are we?
   // the smaller side should get edged down by % of it's deficit
-  var percent     = ((focalPoint/lineHeight) - align.river.first) / align.river.size;
+  let percent     = ((focalPoint/lineHeight) - align.river.first) / align.river.size;
   leftOffset     += percent * (align.river.size - align.left.size)  * lineHeight;
   rightOffset    += percent * (align.river.size - align.right.size) * lineHeight;
 

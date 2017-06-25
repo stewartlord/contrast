@@ -14,6 +14,14 @@ Vue.component('file-list', {
   data: function () {
     return {};
   },
+  methods: {
+    activateDiff: function (diff) {
+      this.$emit('activateDiff', diff);
+    },
+    deactivateDiff: function (diff) {
+      this.$emit('deactivateDiff', diff);
+    }
+  },
   template: `
     <div class="file-list">
       <div class="header"><span class="heading">{{ heading }}</span></div>
@@ -22,7 +30,9 @@ Vue.component('file-list', {
         v-bind:activeRepository="activeRepository"
         v-bind:file="file"
         v-bind:isIndexView="isIndexView"
-        v-bind:key="file.path()">
+        v-bind:key="file.path()"
+        v-on:activateDiff="activateDiff"
+        v-on:deactivateDiff="deactivateDiff">
       </file-status>
     </div>
   `

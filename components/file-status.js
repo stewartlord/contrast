@@ -47,6 +47,12 @@ Vue.component('file-status', {
       return new Promise(resolve => {
         fs.readFile(fullPath, 'utf8', (error, data) => resolve(data));
       });
+    },
+    activateDiff: function (diff) {
+      this.$emit('activateDiff', diff);
+    },
+    deactivateDiff: function (diff) {
+      this.$emit('deactivateDiff', diff);
     }
   },
   template: `
@@ -57,7 +63,13 @@ Vue.component('file-status', {
           {{ file.path() }}
         </span>
       </div>
-      <file-diff v-if="active" v-bind:getLeft="getLeft" v-bind:getRight="getRight"></file-diff>
+      <file-diff
+        v-if="active"
+        v-bind:getLeft="getLeft"
+        v-bind:getRight="getRight"
+        v-on:activate="activateDiff"
+        v-on:deactivate="deactivateDiff">
+      </file-diff>
     </div>
   `
 });

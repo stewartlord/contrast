@@ -5,7 +5,7 @@ body {
 }
 
 /* our app container */
-.contrast {
+.app {
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -227,7 +227,7 @@ div.line span {
   display: inline-block;
 }
 .sub-chunk {
-  background-color: rgba(128, 128, 255, .5);
+  background-color: rgba(128, 128, 255, .35);
 }
 .file-left .sub-chunk.action-add,
 .file-right .sub-chunk.action-delete {
@@ -270,7 +270,7 @@ div.line span {
 }
 
 /* adjust for dark themes */
-.dark-theme .contrast {
+.dark-theme .app {
   background-color: #222;
 }
 .dark-theme .sidebar {
