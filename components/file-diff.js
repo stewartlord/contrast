@@ -7,10 +7,12 @@ const legacy = require('../legacy');
 Vue.component('file-diff', {
   props: ['getLeft', 'getRight'],
   data: function () {
-    return {};
+    return {
+      chunkIndex: []
+    };
   },
   mounted: function () {
-    legacy.loadDiff($(this.$el), this.getLeft(), this.getRight());
+    legacy.loadDiff(this, this.getLeft(), this.getRight());
   },
   methods: {
     activate: function (event) {

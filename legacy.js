@@ -6,8 +6,9 @@ const fs         = require('fs');
 const highlights = require('highlights');
 const path       = require('path');
 
+// @todo make this file specific
 function refresh(target) {
-  chunksByLine    = [];
+  chunkIndex      = [];
   lineHeight      = null;
   lastLeftOffset  = 0,
   lastRightOffset = 0;
@@ -15,19 +16,18 @@ function refresh(target) {
   loadDiff(target, left, right);
 }
 
-var chunksByLine = [];
-function loadDiff(target, left, right) {
+function loadDiff(component, left, right) {
+  let target = $(component.$el);
   Promise.all([
     loadFile(left,  target.find('.file-left')),
     loadFile(right, target.find('.file-right'))
   ]).then(function(values) {
-    var i,
-        isEdit  = false,
-        chunks  = [],
-        changes = diff.diffLines(values[0], values[1]);
+    let isEdit     = false;
+    let chunks     = [];
+    let changes    = diff.diffLines(values[0], values[1]);
 
     // make a pass through changes to pair up edits
-    for (i = 0; i < changes.length; i++) {
+    for (let i = 0; i < changes.length; i++) {
       isEdit = changes[i].removed && i < changes.length && changes[i+1].added;
 
       chunks.push({
@@ -53,22 +53,24 @@ function loadDiff(target, left, right) {
     //  - for any given 'river' line number we want to be able to quickly
     //    lookup the chunk and left/right line numbers that we should be
     //    trying to align when scrolled to the top or bottom of the chunk
+    //    that's what the chunkIndex is for
     //  - identify changed lines with action-add/edit/delete
     //  - draw connecting svg 'bridges' between the left and right side
-    var chunk        = null,
-        chunkClass   = '',
-        chunkSize    = 0,
-        riverLine    = 0,
-        leftNumbers  = target.find('.file-left .file-gutter div.line'),
-        leftLines    = target.find('.file-left .file-contents div.line'),
-        leftLine     = 0,
-        leftSize     = 0,
-        rightNumbers = target.find('.file-right .file-gutter div.line'),
-        rightLines   = target.find('.file-right .file-contents div.line'),
-        rightLine    = 0,
-        rightSize    = 0;
+    let chunkIndex   = [];
+    let chunk        = null;
+    let chunkClass   = '';
+    let chunkSize    = 0;
+    let riverLine    = 0;
+    let leftNumbers  = target.find('.file-left .file-gutter div.line');
+    let leftLines    = target.find('.file-left .file-contents div.line');
+    let leftLine     = 0;
+    let leftSize     = 0;
+    let rightNumbers = target.find('.file-right .file-gutter div.line');
+    let rightLines   = target.find('.file-right .file-contents div.line');
+    let rightLine    = 0;
+    let rightSize    = 0;
 
-    for (i = 0; i < chunks.length; i++) {
+    for (let i = 0; i < chunks.length; i++) {
       chunk     = chunks[i];
       leftSize  = chunk.add    ? 0 : chunk.left.count;
       rightSize = chunk.delete ? 0 : chunk.right.count;
@@ -80,8 +82,8 @@ function loadDiff(target, left, right) {
         right: { first: rightLine, last: rightLine + rightSize, size: rightSize },
         river: { first: riverLine, last: riverLine + chunkSize, size: chunkSize }
       };
-      for (var j = 0; j < chunk.size; j++) {
-        chunksByLine[riverLine + j] = chunk;
+      for (let j = 0; j < chunk.size; j++) {
+        chunkIndex[riverLine + j] = chunk;
       }
 
       // tag changed lines with add/edit/delete action classes
@@ -116,6 +118,9 @@ function loadDiff(target, left, right) {
 
     // river should be tall enough to scroll through tallest chunks
     target.find('.river').css('min-height', (getLineHeight(target) * riverLine) + 'px');
+
+    // save the index on the component for use when scrolling
+    component.chunkIndex = chunkIndex;
   });
 }
 
@@ -340,20 +345,22 @@ function scrollY(app, body, delta) {
   body.scrollTop += delta;
 
   // if we don't have an active file-diff, all done
+  // @todo - this doesn't work well! need to find the "in-view" diff(s) via scrolltop math
   if (!app.activeDiff) return;
 
   // align changes when they scroll to a point 1/3 of the way down the window
   // find the line that corresponds to this point based on line-height
   // @todo focal-line calculation needs to be revisited now that we have multiple files
-  let target      = $(app.activeDiff.$el);
-  let scrollTop   = body.scrollTop;
-  let lineHeight  = getLineHeight(target);
-  let focalPoint  = Math.floor($(window).height() / 3) + scrollTop;
-  let focalLine   = Math.floor(focalPoint / lineHeight);
+  let target     = $(app.activeDiff.$el);
+  let offsetTop  = target.offset().top;
+  let scrollTop  = body.scrollTop - offsetTop;
+  let lineHeight = getLineHeight(target);
+  let focalPoint = Math.floor($(window).height() / 3) + scrollTop
+  let focalLine  = Math.floor(Math.max(0, focalPoint) / lineHeight);
 
   // line-up first line in each chunk
-  // @todo chunksByLine data needs to be moved into the component
-  let chunk       = chunksByLine[Math.min(focalLine, chunksByLine.length - 1)];
+  let chunkIndex  = app.activeDiff.chunkIndex;
+  let chunk       = chunkIndex[Math.min(focalLine, chunkIndex.length - 1)];
   let align       = chunk.align;
   let leftOffset  = (align.river.first - align.left.first)  * lineHeight;
   let rightOffset = (align.river.first - align.right.first) * lineHeight;
