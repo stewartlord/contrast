@@ -6,6 +6,7 @@ const path     = require('path');
 const Vue      = require('vue/dist/vue');
 
 const fileDiff = require('./file-diff');
+const toolbar  = require('./toolbar');
 
 Vue.component('file-status', {
   props: [
@@ -14,7 +15,15 @@ Vue.component('file-status', {
     'file'
   ],
   data: function () {
-    return { active: false };
+    return {
+      active: false,
+      buttons: [{
+        label: 'Refresh',
+        className: 'refresh',
+        iconClass: 'fa fa-refresh',
+        click: this.refresh
+      }]
+    };
   },
   methods: {
     activate: function () {
@@ -53,6 +62,9 @@ Vue.component('file-status', {
     },
     deactivateDiff: function (diff) {
       this.$emit('deactivateDiff', diff);
+    },
+    refresh: function () {
+      this.$refs.fileDiff.$forceUpdate();
     }
   },
   template: `
@@ -62,8 +74,10 @@ Vue.component('file-status', {
           <i v-bind:class="['fa', { 'fa-caret-right': !active, 'fa-caret-down': active }]"></i>
           {{ file.path() }}
         </span>
+        <toolbar v-bind:buttons="buttons"></toolbar>
       </div>
       <file-diff
+        ref="fileDiff"
         v-if="active"
         v-bind:getLeft="getLeft"
         v-bind:getRight="getRight"

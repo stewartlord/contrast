@@ -14,6 +14,11 @@ Vue.component('file-diff', {
   mounted: function () {
     legacy.loadDiff(this, this.getLeft(), this.getRight());
   },
+  updated: function () {
+    this.chunkIndex = [];
+    $(this.$el).find('.file-contents, .file-gutter, .river').html("");
+    legacy.loadDiff(this, this.getLeft(), this.getRight());
+  },
   methods: {
     activate: function (event) {
       this.$emit('activate', this);
