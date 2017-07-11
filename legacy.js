@@ -327,39 +327,20 @@ function updateBridges(target, leftOffset, rightOffset) {
   lastRightOffset = rightOffset;
 }
 
-function scrollX(app, body, delta) {
-  // if we don't have an active file-diff, nothing to do
-  if (!app.activeDiff) return;
-
-  let target = $(app.activeDiff.$el);
-  let left   = target.find('.file-left .file-contents')[0];
-  let right  = target.find('.file-right .file-contents')[0];
-  let master = left.scrollWidth > right.scrollWidth ? left  : right;
-  let slave  = left.scrollWidth > right.scrollWidth ? right : left;
-
-  master.scrollLeft += delta;
-  slave.scrollLeft   = master.scrollLeft;
-}
-
-function scrollY(app, body, delta) {
-  body.scrollTop += delta;
-
-  // if we don't have an active file-diff, all done
-  // @todo - this doesn't work well! need to find the "in-view" diff(s) via scrolltop math
-  if (!app.activeDiff) return;
+function scrollY(diff, scrollTop) {
+  // adjust scrollTop to account for offset of this diff
+  let target     = $(diff.$el);
+  let offsetTop  = target.offset().top;
+  scrollTop -= offsetTop;
 
   // align changes when they scroll to a point 1/3 of the way down the window
   // find the line that corresponds to this point based on line-height
-  // @todo focal-line calculation needs to be revisited now that we have multiple files
-  let target     = $(app.activeDiff.$el);
-  let offsetTop  = target.offset().top;
-  let scrollTop  = body.scrollTop - offsetTop;
   let lineHeight = getLineHeight(target);
   let focalPoint = Math.floor($(window).height() / 3) + scrollTop
   let focalLine  = Math.floor(Math.max(0, focalPoint) / lineHeight);
 
   // line-up first line in each chunk
-  let chunkIndex  = app.activeDiff.chunkIndex;
+  let chunkIndex  = diff.chunkIndex;
   let chunk       = chunkIndex[Math.min(focalLine, chunkIndex.length - 1)];
   let align       = chunk.align;
   let leftOffset  = (align.river.first - align.left.first)  * lineHeight;

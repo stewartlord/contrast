@@ -21,7 +21,7 @@ Vue.component('file-status', {
         label: 'Refresh',
         className: 'refresh',
         iconClass: 'fa fa-refresh',
-        click: this.refresh
+        click: () => this.$refs.fileDiff.refresh()
       }]
     };
   },
@@ -56,15 +56,6 @@ Vue.component('file-status', {
       return new Promise(resolve => {
         fs.readFile(fullPath, 'utf8', (error, data) => resolve(data));
       });
-    },
-    activateDiff: function (diff) {
-      this.$emit('activateDiff', diff);
-    },
-    deactivateDiff: function (diff) {
-      this.$emit('deactivateDiff', diff);
-    },
-    refresh: function () {
-      this.$refs.fileDiff.$forceUpdate();
     }
   },
   template: `
@@ -80,9 +71,7 @@ Vue.component('file-status', {
         ref="fileDiff"
         v-if="active"
         v-bind:getLeft="getLeft"
-        v-bind:getRight="getRight"
-        v-on:activate="activateDiff"
-        v-on:deactivate="deactivateDiff">
+        v-bind:getRight="getRight">
       </file-diff>
     </div>
   `

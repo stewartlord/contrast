@@ -19,7 +19,6 @@ let app = new Vue({
   data: function () {
     return {
       activeRepository: null,
-      activeDiff: null,
       files: {
         index: [],
         working: []
@@ -39,20 +38,14 @@ let app = new Vue({
   },
   mounted: function () {
     // take over scrolling via mouse 'wheel' events
-    let body = $('body');
-    body.on('wheel', (event) => {
+    $(document.body).on('wheel', (event) => {
       event.preventDefault();
       event.stopPropagation();
 
-      let deltaY = event.originalEvent.deltaY;
-      let deltaX = event.originalEvent.deltaX;
-
       requestAnimationFrame(() => {
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          legacy.scrollX(this, body[0], event.originalEvent.deltaX);
-        } else {
-          legacy.scrollY(this, body[0], event.originalEvent.deltaY);
-        }
+        Math.abs(event.originalEvent.deltaX) > Math.abs(event.originalEvent.deltaY)
+          ? this.scrollX(event)
+          : this.scrollY(event);
       });
     });
   },
@@ -69,13 +62,66 @@ let app = new Vue({
         if (file.inWorkingTree()) this.files.working.push(file);
       });
     },
-    activateDiff: function (diff) {
-      this.activeDiff = diff;
+    scrollX: function (event) {
+      let clientX = event.originalEvent.clientX;
+      let clientY = event.originalEvent.clientY;
+      let diff    = this.getHoveredDiff(clientX, clientY);
+      if (!diff) return;
+
+      let target = $(diff.$el);
+      let left   = target.find('.file-left .file-contents')[0];
+      let right  = target.find('.file-right .file-contents')[0];
+      let master = left.scrollWidth > right.scrollWidth ? left  : right;
+      let slave  = left.scrollWidth > right.scrollWidth ? right : left;
+
+      master.scrollLeft += event.originalEvent.deltaX;
+      slave.scrollLeft   = master.scrollLeft;
     },
-    deactivateDiff: function (diff) {
-      if (this.activeDiff === diff) {
-        this.activeDiff = null;
+    scrollY: function (event) {
+      document.body.scrollTop += event.originalEvent.deltaY;
+      let diffs = this.getVisibleDiffs();
+      for (let diff of diffs) {
+        legacy.scrollY(diff, document.body.scrollTop);
       }
+    },
+    getHoveredDiff: function (x, y) {
+      let element = document.elementFromPoint(x, y);
+      let diffElement = $(element).closest('.file-diff')[0];
+      if (!diffElement) return;
+
+      for (let diff of this.getActiveDiffs()) {
+        if (diff.$el === diffElement) {
+          return diff;
+        }
+      }
+    },
+    getActiveDiffs: function () {
+      let activeDiffs = [];
+      for (let list of [this.$refs.stagedList, this.$refs.unstagedList]) {
+        if (!list.$refs || !list.$refs.fileStatuses) continue;
+        for (let status of list.$refs.fileStatuses) {
+          if (status.active) {
+            activeDiffs.push(status.$refs.fileDiff);
+          }
+        }
+      }
+      return activeDiffs;
+    },
+    getVisibleDiffs: function () {
+      let visible = [];
+      let scrollTop = document.body.scrollTop;
+      let scrollBottom = scrollTop + document.body.clientHeight;
+      for (let diff of this.getActiveDiffs()) {
+        let top = diff.$el.offsetTop;
+        let bottom = diff.$el.offsetTop + diff.$el.clientHeight;
+        if ((top >= scrollTop && top <= scrollBottom)
+          || (bottom >= scrollTop && bottom <= scrollBottom)
+          || (top <= scrollTop && bottom >= scrollBottom)
+        ) {
+          visible.push(diff);
+        }
+      }
+      return visible;
     }
   },
   template: `
@@ -86,20 +132,18 @@ let app = new Vue({
       </sidebar>
       <toolbar v-bind:buttons="toolbarButtons"></toolbar>
       <file-list
+        ref="stagedList"
         v-bind:activeRepository="activeRepository"
         v-bind:heading="'Staged'"
         v-bind:files="files.index"
-        v-bind:isIndexView="true"
-        v-on:activateDiff="activateDiff"
-        v-on:deactivateDiff="deactivateDiff">
+        v-bind:isIndexView="true">
       </file-list>
       <file-list
+        ref="unstagedList"
         v-bind:activeRepository="activeRepository"
         v-bind:heading="'Unstaged'"
         v-bind:files="files.working"
-        v-bind:isIndexView="false"
-        v-on:activateDiff="activateDiff"
-        v-on:deactivateDiff="deactivateDiff">
+        v-bind:isIndexView="false">
       </file-list>
     </div>
   `

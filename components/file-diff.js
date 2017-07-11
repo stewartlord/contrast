@@ -14,21 +14,15 @@ Vue.component('file-diff', {
   mounted: function () {
     legacy.loadDiff(this, this.getLeft(), this.getRight());
   },
-  updated: function () {
-    this.chunkIndex = [];
-    $(this.$el).find('.file-contents, .file-gutter, .river').html("");
-    legacy.loadDiff(this, this.getLeft(), this.getRight());
-  },
   methods: {
-    activate: function (event) {
-      this.$emit('activate', this);
-    },
-    deactivate: function (event) {
-      this.$emit('deactivate', this);
+    refresh: function () {
+      this.chunkIndex = [];
+      $(this.$el).find('.file-contents, .file-gutter, .river').html("");
+      legacy.loadDiff(this, this.getLeft(), this.getRight());
     }
   },
   template: `
-    <div class="file-diff" v-on:mouseenter="activate" v-on:mouseleave="deactivate">
+    <div class="file-diff">
       <div class="file file-left">
         <div class="file-offset">
           <div class="file-gutter"></div>
