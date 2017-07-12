@@ -312,21 +312,6 @@ function drawBridge(target, chunk, leftOffset, rightOffset, bridge) {
   lines.last().attr({ x1: 0, y1: (leftBottom - top - 1), x2: 100, y2: (rightBottom - top - 1)});
 }
 
-// @todo need to move these into component as well, can't be shared!
-var lastLeftOffset  = 0,
-    lastRightOffset = 0;
-function updateBridges(target, leftOffset, rightOffset) {
-  if (leftOffset === lastLeftOffset && rightOffset === lastRightOffset)
-    return;
-
-  target.find('.bridge').each(function(){
-    drawBridge(target, null, leftOffset, rightOffset, $(this));
-  });
-
-  lastLeftOffset  = leftOffset;
-  lastRightOffset = rightOffset;
-}
-
 function scrollY(diff, scrollTop) {
   // adjust scrollTop to account for offset of this diff
   let target     = $(diff.$el);
@@ -352,11 +337,23 @@ function scrollY(diff, scrollTop) {
   leftOffset     += percent * (align.river.size - align.left.size)  * lineHeight;
   rightOffset    += percent * (align.river.size - align.right.size) * lineHeight;
 
+  // if the offsets are unchanged, all done!
+  if (leftOffset === diff.lastOffset.left && rightOffset === diff.lastOffset.right) {
+    return;
+  }
+
+  // record new offsets for next time
+  diff.lastOffset.left  = leftOffset;
+  diff.lastOffset.right = rightOffset;
+
+  // nudge left/right files up/down
   target.find('.file-left  .file-offset').css('top', leftOffset  + 'px');
   target.find('.file-right .file-offset').css('top', rightOffset + 'px');
 
   // redraw connecting svgs
-  updateBridges(target, leftOffset, rightOffset);
+  target.find('.bridge').each(function(){
+    drawBridge(target, null, leftOffset, rightOffset, $(this));
+  });
 }
 
 function getThemeMenu() {

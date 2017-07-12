@@ -8,7 +8,8 @@ Vue.component('file-diff', {
   props: ['getLeft', 'getRight'],
   data: function () {
     return {
-      chunkIndex: []
+      chunkIndex: [],
+      lastOffset: {left: 0, right: 0}
     };
   },
   mounted: function () {
