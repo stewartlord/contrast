@@ -3,7 +3,9 @@
 const electron = require('electron');
 const jQuery   = require('jquery');
 const NodeGit  = require("nodegit");
+const persist  = require('vuex-persistedstate');
 const Vue      = require('vue/dist/vue');
+const Vuex     = require('vuex');
 
 const legacy   = require('./legacy');
 const fileList = require('./components/file-list');
@@ -13,9 +15,26 @@ const toolbar  = require('./components/toolbar');
 window.jQuery  = jQuery;
 window.$       = jQuery;
 
+// setup state storage
+Vue.use(Vuex);
+const store = new Vuex.Store({
+  state: {
+    repositories: []
+  },
+  mutations: {
+    updateRepositories (state, repositories) {
+      state.repositories = repositories;
+    }
+  },
+  plugins: [
+    persist()
+  ]
+});
+
 // instantiate the Vue.js application
 let app = new Vue({
   el: 'app',
+  store,
   data: function () {
     return {
       activeRepository: null,
@@ -48,6 +67,12 @@ let app = new Vue({
           : this.scrollY(event);
       });
     });
+
+    // find all git repositories in the user's home directory
+    let gitWorker = new Worker('workers/find-repos.js');
+    gitWorker.onmessage = (event) => {
+      this.$store.commit('updateRepositories', event.data);
+    }
   },
   methods: {
     activateRepository: async function (repository) {

@@ -24,10 +24,12 @@
   "dependencies": {
     "diff": "^3.2.0",
     "font-awesome": "^4.7.0",
-    "nodegit": "^0.18.3",
     "highlights": "^3.0.0",
     "jquery": "^3.2.0",
-    "vue": "^2.3.3"
+    "nodegit": "^0.18.3",
+    "vue": "^2.3.3",
+    "vuex": "^2.3.1",
+    "vuex-persistedstate": "^2.0.0"
   },
   "devDependencies": {
     "electron": "^1.6.2",
@@ -40,16 +42,19 @@
       "category": "public.app-category.developer-tools"
     },
     "dmg": {
-      "contents": [{
-        "type": "file",
-        "x": 135,
-        "y": 265
-      }, {
-        "type": "link",
-        "path": "/Applications",
-        "x": 405,
-        "y": 265
-      }]
+      "contents": [
+        {
+          "type": "file",
+          "x": 135,
+          "y": 265
+        },
+        {
+          "type": "link",
+          "path": "/Applications",
+          "x": 405,
+          "y": 265
+        }
+      ]
     }
   }
 }

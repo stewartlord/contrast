@@ -4,15 +4,10 @@ const Vue = require('vue/dist/vue');
 
 Vue.component('sidebar', {
   props: ['activeRepository'],
-  data: function () {
-    // find all git repositories in the user's home directory
-    let gitWorker = new Worker('workers/find-repos.js');
-    gitWorker.onmessage = (event) => {
-      this.repositories = event.data;
+  computed: {
+    repositories: function () {
+      return this.$store.state.repositories;
     }
-
-    // stub while we wait for repos to load
-    return { repositories: [] };
   },
   methods: {
     activateRepository: function (repository) {
