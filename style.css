@@ -9,11 +9,14 @@ body {
 .app {
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
   min-height: 100%;
   margin: 0;
-  padding-top: 40px;
   padding-left: 60px;
   background: #fff;
+}
+.app.active-repository {
+  padding-top: 40px;
 }
 
 /* sidebar */
@@ -67,6 +70,15 @@ body {
 }
 .sidebar .button.add:hover::after {
   display: none;
+}
+
+/* welcome screen */
+.welcome {
+  flex: 1;
+  background-image: url('icon/welcome-light.png');
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 /* toolbar */
@@ -302,6 +314,9 @@ div.line span {
 .dark-theme .sidebar {
   background-color: #333;
   border-right: 1px solid #111;
+}
+.dark-theme .welcome {
+  background-image: url('icon/welcome-dark.png');
 }
 .dark-theme .app > .toolbar {
   background-color: #333;

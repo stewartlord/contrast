@@ -11,6 +11,7 @@ const legacy   = require('./legacy');
 const fileList = require('./components/file-list');
 const sidebar  = require('./components/sidebar');
 const toolbar  = require('./components/toolbar');
+const welcome  = require('./components/welcome');
 
 window.jQuery  = jQuery;
 window.$       = jQuery;
@@ -121,6 +122,7 @@ let app = new Vue({
       }
     },
     getActiveDiffs: function () {
+      if (!this.activeRepository) return;
       let activeDiffs = [];
       for (let list of [this.$refs.stagedList, this.$refs.unstagedList]) {
         if (!list.$refs || !list.$refs.fileStatuses) continue;
@@ -150,26 +152,31 @@ let app = new Vue({
     }
   },
   template: `
-    <div class="app">
+    <div v-bind:class="{ 'app': true, 'active-repository': activeRepository }">
       <sidebar
         v-bind:activeRepository="activeRepository"
         v-on:activateRepository="activateRepository">
       </sidebar>
-      <toolbar v-bind:buttons="toolbarButtons"></toolbar>
-      <file-list
-        ref="stagedList"
-        v-bind:activeRepository="activeRepository"
-        v-bind:heading="'Staged'"
-        v-bind:files="files.index"
-        v-bind:isIndexView="true">
-      </file-list>
-      <file-list
-        ref="unstagedList"
-        v-bind:activeRepository="activeRepository"
-        v-bind:heading="'Unstaged'"
-        v-bind:files="files.working"
-        v-bind:isIndexView="false">
-      </file-list>
+      <template v-if="activeRepository">
+        <toolbar v-bind:buttons="toolbarButtons"></toolbar>
+        <file-list
+          ref="stagedList"
+          v-bind:activeRepository="activeRepository"
+          v-bind:heading="'Staged'"
+          v-bind:files="files.index"
+          v-bind:isIndexView="true">
+        </file-list>
+        <file-list
+          ref="unstagedList"
+          v-bind:activeRepository="activeRepository"
+          v-bind:heading="'Unstaged'"
+          v-bind:files="files.working"
+          v-bind:isIndexView="false">
+        </file-list>
+      </template>
+      <template v-else>
+        <welcome/>
+      </template>
     </div>
   `
 });
