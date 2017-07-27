@@ -5,11 +5,17 @@
   <body>
     <script type="text/javascript">
       let makeBackground = true;
+      let makeDmg = false;
+      let makeWelcome = true;
+      let welcomeDark = false;
 
       // light blue
       let color = '#42A5F5';
       if (makeBackground) {
         color = '#777';
+      }
+      if (makeWelcome) {
+        color = welcomeDark ? '#1a1a1a' : '#eee';
       }
 
       var icon = document.createElement('canvas');
@@ -26,10 +32,12 @@
       }
 
       // draw base circle
-      ctx.beginPath();
-      ctx.arc(512, 512, 450, 0, Math.PI*2, false);
-      ctx.fillStyle='#fff';
-      ctx.fill();
+      if (!makeWelcome) {
+        ctx.beginPath();
+        ctx.arc(512, 512, 450, 0, Math.PI*2, false);
+        ctx.fillStyle='#fff';
+        ctx.fill();
+      }
 
       // disable drop-shadow
       ctx.shadowColor = 'transparent';
@@ -56,17 +64,19 @@
       ctx.fill();
 
       // gradient overlay
-      ctx.globalCompositeOperation = 'overlay';
-      var gradient = ctx.createLinearGradient(512, 0, 512, 1024);
-      gradient.addColorStop(0, 'rgba(255,255,255,.6)');
-      gradient.addColorStop(0.4, 'rgba(255,255,255,0)');
-      gradient.addColorStop(0.6, 'rgba(0,0,0,0)');
-      gradient.addColorStop(1, 'rgba(0,0,0,.6)');
-      ctx.fillStyle = gradient;
-      ctx.arc(512, 512, 450, 0, Math.PI*2, false);
-      ctx.fill();
+      if (!makeWelcome) {
+        ctx.globalCompositeOperation = 'overlay';
+        var gradient = ctx.createLinearGradient(512, 0, 512, 1024);
+        gradient.addColorStop(0, 'rgba(255,255,255,.6)');
+        gradient.addColorStop(0.4, 'rgba(255,255,255,0)');
+        gradient.addColorStop(0.6, 'rgba(0,0,0,0)');
+        gradient.addColorStop(1, 'rgba(0,0,0,.6)');
+        ctx.fillStyle = gradient;
+        ctx.arc(512, 512, 450, 0, Math.PI*2, false);
+        ctx.fill();
+      }
 
-      if (makeBackground) {
+      if (makeDmg) {
         // white wash (watermark)
         ctx.globalCompositeOperation = 'source-atop';
         ctx.fillStyle='rgba(255,255,255,.85)';
