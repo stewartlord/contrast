@@ -70,6 +70,7 @@ Vue.component('file-status', {
       <file-diff
         ref="fileDiff"
         v-if="active"
+        v-bind:file="file"
         v-bind:getLeft="getLeft"
         v-bind:getRight="getRight">
       </file-diff>

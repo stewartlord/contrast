@@ -16,112 +16,179 @@ function refresh(target) {
   loadDiff(target, left, right);
 }
 
-function loadDiff(component, left, right) {
+function loadDiff(component, left, right, context) {
   let target = $(component.$el);
   Promise.all([
-    loadFile(left,  target.find('.file-left')),
-    loadFile(right, target.find('.file-right'))
+    loadFile(component.file.path(), left,  target.find('.file-left')),
+    loadFile(component.file.path(), right, target.find('.file-right'))
   ]).then(function(values) {
-    let isEdit     = false;
-    let chunks     = [];
-    let changes    = diff.diffLines(values[0], values[1]);
-
-    // make a pass through changes to pair up edits
-    for (let i = 0; i < changes.length; i++) {
-      isEdit = changes[i].removed && i < changes.length && changes[i+1].added;
-
-      chunks.push({
-        edit:   isEdit,
-        add:    isEdit ? false : changes[i].added,
-        delete: isEdit ? false : changes[i].removed,
-        same:   changes[i].added || changes[i].removed ? false : true,
-        action: isEdit ? 'edit' : (changes[i].added ? 'add' : (changes[i].removed ? 'delete' : 'same')),
-        left:   changes[i],
-        right:  isEdit ? changes[i+1] : changes[i],
-        size:   isEdit ? Math.max(changes[i].count, changes[i+1].count) : changes[i].count
-      });
-
-      // skip add half of edits
-      if (isEdit) i++;
-    }
-
-    // process the diff chunks now that we've paired up edits:
-    //  - if you were to take the tallest side of each diff chunk and stack
-    //    them on top of each other, that is how tall we want the river to be
-    //    that way you can scroll down the river and smoothly scroll past
-    //    every line in every diff chunk
-    //  - for any given 'river' line number we want to be able to quickly
-    //    lookup the chunk and left/right line numbers that we should be
-    //    trying to align when scrolled to the top or bottom of the chunk
-    //    that's what the chunkIndex is for
-    //  - identify changed lines with action-add/edit/delete
-    //  - draw connecting svg 'bridges' between the left and right side
-    let chunkIndex   = [];
-    let chunk        = null;
-    let chunkClass   = '';
-    let chunkSize    = 0;
-    let riverLine    = 0;
-    let leftNumbers  = target.find('.file-left .file-gutter div.line');
-    let leftLines    = target.find('.file-left .file-contents div.line');
-    let leftLine     = 0;
-    let leftSize     = 0;
-    let rightNumbers = target.find('.file-right .file-gutter div.line');
-    let rightLines   = target.find('.file-right .file-contents div.line');
-    let rightLine    = 0;
-    let rightSize    = 0;
-
-    for (let i = 0; i < chunks.length; i++) {
-      chunk     = chunks[i];
-      leftSize  = chunk.add    ? 0 : chunk.left.count;
-      rightSize = chunk.delete ? 0 : chunk.right.count;
-      chunkSize = chunk.size;
-
-      // prepare line-based alignment data and index by river line number
-      chunk.align = {
-        left:  { first: leftLine,  last: leftLine  + leftSize,  size: leftSize },
-        right: { first: rightLine, last: rightLine + rightSize, size: rightSize },
-        river: { first: riverLine, last: riverLine + chunkSize, size: chunkSize }
-      };
-      for (let j = 0; j < chunk.size; j++) {
-        chunkIndex[riverLine + j] = chunk;
-      }
-
-      // tag changed lines with add/edit/delete action classes
-      // and draw connection between the left and right hand side
-      if (!chunk.same) {
-        $.each([
-          leftNumbers.slice(leftLine, leftLine + (leftSize || 1)),
-          leftLines.slice(leftLine,   leftLine + (leftSize || 1)),
-          rightNumbers.slice((rightSize ? rightLine : rightLine - 1), rightLine + rightSize),
-          rightLines.slice((rightSize   ? rightLine : rightLine - 1), rightLine + rightSize)
-        ], function(){
-          this.addClass('action-' + chunk.action)
-              .first().addClass('chunk-first').end()
-              .last().addClass('chunk-last');
-        });
-
-        drawBridge(target, chunk, 0, 0);
-      }
-
-      // do sub-chunk diffing on edits
-      if (chunk.edit) {
-        subDiff(
-          $(leftLines.slice(leftLine, leftLine + leftSize)),
-          $(rightLines.slice(rightLine, rightLine + rightSize))
-        );
-      }
-
-      leftLine  += leftSize;
-      rightLine += rightSize;
-      riverLine += chunkSize
-    }
-
-    // river should be tall enough to scroll through tallest chunks
-    target.find('.river').css('min-height', (getLineHeight(target) * riverLine) + 'px');
-
-    // save the index on the component for use when scrolling
-    component.chunkIndex = chunkIndex;
+    component.chunks = getDiffChunks(values[0], values[1]);
+    applyDiff(component);
+    adjustContext(component, context);
   });
+}
+
+function getDiffChunks(left, right) {
+  let changes    = diff.diffLines(left, right);
+  let chunks     = [];
+  let leftLine   = 0;
+  let rightLine  = 0;
+
+  // loop through changes to prepare chunk data
+  for (let i = 0; i < changes.length; i++) {
+    let isEdit   = changes[i].removed && i < changes.length && changes[i+1].added;
+    let isAdd    = isEdit ? false : changes[i].added;
+    let isDelete = isEdit ? false : changes[i].removed;
+    let leftSize = isAdd ? 0 : changes[i].count;
+    let rightSize = isDelete ? 0 : (isEdit ? changes[i+1] : changes[i]).count;
+
+    let chunk = {
+      edit:      isEdit,
+      add:       isAdd,
+      delete:    isDelete,
+      same:      !isAdd && !isDelete && !isEdit,
+      action:    isEdit ? 'edit' : (isAdd ? 'add' : (isDelete ? 'delete' : 'same')),
+      size:      Math.max(leftSize, rightSize),
+      leftSize:  leftSize,
+      rightSize: rightSize,
+      leftLine:  leftLine,
+      rightLine: rightLine
+    };
+
+    chunks.push(chunk);
+
+    // advance line counters
+    leftLine  += leftSize
+    rightLine += rightSize;
+
+    // skip add half of edits
+    if (isEdit) i++;
+  }
+
+  return chunks;
+}
+
+function applyDiff(component) {
+  let chunks = component.chunks;
+  let target = component.$el
+
+  // apply the data in the diff chunks to the DOM
+  // identify changed lines with action-add/edit/delete
+  // tag lines that are chunk boundaries
+  // apply sub-chunk diffing
+  let leftLines    = target.querySelector('.file-left .file-contents pre').childNodes;
+  let leftNumbers  = target.querySelector('.file-left .file-gutter').childNodes;
+  let rightLines   = target.querySelector('.file-right .file-contents pre').childNodes;
+  let rightNumbers = target.querySelector('.file-right .file-gutter').childNodes;
+
+  let applyChunkClasses = function(action, lines, numbers, start, length) {
+    let end = start + length;
+    for (let i = start; i < end; i++) {
+      let classes = ['action-' + action];
+      if (i === start) classes.push('chunk-first');
+      if (i === end - 1) classes.push('chunk-last');
+      lines[i].classList.add(...classes);
+      numbers[i].classList.add(...classes);
+    }
+  }
+
+  for (let i = 0; i < chunks.length; i++) {
+    let chunk = chunks[i];
+
+    if (!chunk.same) {
+      applyChunkClasses(
+        chunk.action,
+        leftLines,
+        leftNumbers,
+        chunk.leftLine,
+        chunk.leftSize || 1
+      );
+      applyChunkClasses(
+        chunk.action,
+        rightLines,
+        rightNumbers,
+        chunk.rightSize ? chunk.rightLine : chunk.rightLine - 1,
+        chunk.rightSize
+      );
+    }
+
+    // do sub-chunk diffing on edits
+    if (chunk.edit) {
+      subDiff(
+        $(Array.prototype.slice.call(leftLines, chunk.leftLine, chunk.leftLine + chunk.leftSize + 1)),
+        $(Array.prototype.slice.call(rightLines, chunk.rightLine, chunk.rightLine + chunk.rightSize + 1))
+      );
+    }
+  }
+}
+
+function adjustContext(component, context) {
+  let target       = component.$el;
+  let chunkIndex   = [];
+  let leftLines    = target.querySelector('.file-left .file-contents pre').childNodes;
+  let leftNumbers  = target.querySelector('.file-left .file-gutter').childNodes;
+  let rightLines   = target.querySelector('.file-right .file-contents pre').childNodes;
+  let rightNumbers = target.querySelector('.file-right .file-gutter').childNodes;
+  let leftLine     = 0;
+  let rightLine    = 0;
+  let riverLine    = 0;
+
+  for (let i = 0; i < component.chunks.length; i++) {
+    let chunk     = component.chunks[i];
+    let isFirst   = i === 0;
+    let isLast    = i === component.chunks.length - 1;
+    let leftSize  = chunk.leftSize;
+    let rightSize = chunk.rightSize;
+    let chunkSize = chunk.size;
+
+    // 'same' chunks may have excessive context lines
+    if (chunk.same) {
+      for (let j = 0; j < chunk.size; j++) {
+        let isExcess = (isFirst || j >= context) && (isLast || j < (chunk.size - context));
+        leftLines[chunk.leftLine + j].classList.toggle('excess-context', isExcess);
+        leftNumbers[chunk.leftLine + j].classList.toggle('excess-context', isExcess);
+        rightLines[chunk.rightLine + j].classList.toggle('excess-context', isExcess);
+        rightNumbers[chunk.rightLine + j].classList.toggle('excess-context', isExcess);
+      }
+
+      // need to limit sizes to requested amount of context
+      chunkSize = Math.min(isFirst || isLast ? context : context * 2, chunkSize);
+      leftSize  = chunkSize;
+      rightSize = chunkSize;
+    }
+
+    // prepare line-based alignment data and index by river line number
+    // for any given 'river' line number we want to be able to quickly
+    // lookup the chunk and left/right line numbers that we should be
+    // trying to align when scrolled to the top or bottom of the chunk
+    // that's what the chunkIndex is for
+    chunk.align = {
+      left:  { first: leftLine,  last: leftLine  + leftSize,  size: leftSize },
+      right: { first: rightLine, last: rightLine + rightSize, size: rightSize },
+      river: { first: riverLine, last: riverLine + chunkSize, size: chunkSize }
+    };
+    for (let j = 0; j < chunk.size; j++) {
+      chunkIndex[riverLine + j] = chunk;
+    }
+
+    // if this is a changed chunk, draw connecting bridge
+    if (!chunk.same) {
+      drawBridge(target, chunk, 0, 0);
+    }
+
+    leftLine  += leftSize;
+    rightLine += rightSize;
+    riverLine += chunkSize;
+  }
+
+  // river should be exactly as tall as all of the chunks stacked on top of
+  // each other - that way every line is accounted for and we can smoothly
+  // scroll past every line in every chunk
+  let river = target.querySelector('.river');
+  river.style.minHeight = (getLineHeight(target) * riverLine) + 'px';
+
+  // save the index on the component for use when scrolling
+  component.chunkIndex = chunkIndex;
 }
 
 function subDiff(left, right) {
@@ -233,13 +300,13 @@ function getLineHeight(target) {
   return lineHeight;
 }
 
-function loadFile(file, container) {
+function loadFile(fileName, fileContents, container) {
   return new Promise(function(resolve, reject) {
-    file.then((data) => {
+    fileContents.then((data) => {
       // syntax highlight
       var html = new highlights().highlightSync({
         fileContents: data,
-        scopeName: 'source.js'
+        scopeName: 'source' + path.extname(fileName)
       });
       container.find('.file-contents').html(html);
 
@@ -256,6 +323,8 @@ function loadFile(file, container) {
 }
 
 function drawBridge(target, chunk, leftOffset, rightOffset, bridge) {
+  target = $(target);
+
   // if bridge is given we are re-drawing an existing bridge
   // otherwise we need to make the bridge
   if (bridge) {

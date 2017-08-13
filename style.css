@@ -260,6 +260,11 @@ div.line.chunk-first.chunk-last.action-edit {
   background-color: transparent;
 }
 
+/* context */
+div.line.excess-context {
+  display: none;
+}
+
 /* sub-chunks */
 div.line span {
   display: inline-block;
