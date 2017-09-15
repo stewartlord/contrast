@@ -122,7 +122,7 @@ let app = new Vue({
       }
     },
     getActiveDiffs: function () {
-      if (!this.activeRepository) return;
+      if (!this.activeRepository) return [];
       let activeDiffs = [];
       for (let list of [this.$refs.stagedList, this.$refs.unstagedList]) {
         if (!list.$refs || !list.$refs.fileStatuses) continue;

@@ -171,7 +171,6 @@ body {
   flex: 1;
   min-width: 0;
   box-sizing: border-box;
-  padding: 2px 0;
   font-size: 14px;
   line-height: 22px;
   background-color: #fff;
@@ -183,7 +182,7 @@ body {
   top: 0;
   bottom: 0;
   width: 60px;
-  background-color: #fff;
+  background-color: #f7f7f7;
 }
 .file-left {
   box-shadow: 1px 0 0 0 rgba(255, 255, 255, .15);
@@ -224,44 +223,53 @@ div.line.action-add {
 div.line.action-edit {
   background-color: rgba(96, 96, 255, .25);
 }
-div.line.chunk-first.action-delete {
+div.line.chunk-start.action-delete {
   box-shadow: 0 -1px 0 0 rgba(255, 96, 96, .25);
 }
-div.line.chunk-first.action-add {
+div.line.chunk-start.action-add {
   box-shadow: 0 -1px 0 0 rgba(96, 255, 96, .25);
 }
-div.line.chunk-first.action-edit {
+div.line.chunk-start.action-edit {
   box-shadow: 0 -1px 0 0 rgba(96, 96, 255, .25);
 }
-div.line.chunk-last.action-delete {
+div.line.chunk-end.action-delete {
   box-shadow: 0 1px 0 0 rgba(255, 96, 96, .25);
 }
-div.line.chunk-last.action-add {
+div.line.chunk-end.action-add {
   box-shadow: 0 1px 0 0 rgba(96, 255, 96, .25);
 }
-div.line.chunk-last.action-edit {
+div.line.chunk-end.action-edit {
   box-shadow: 0 1px 0 0 rgba(96, 96, 255, .25);
 }
-div.line.chunk-first.chunk-last.action-delete {
+div.line.chunk-start.chunk-end.action-delete {
   box-shadow: 0 -1px 0 0 rgba(255, 96, 96, .25), 0 1px 0 0 rgba(255, 96, 96, .25);
 }
-div.line.chunk-first.chunk-last.action-add {
+div.line.chunk-start.chunk-end.action-add {
   box-shadow: 0 -1px 0 0 rgba(96, 255, 96, .25), 0 1px 0 0 rgba(96, 255, 96, .25);
 }
-div.line.chunk-first.chunk-last.action-edit {
+div.line.chunk-start.chunk-end.action-edit {
   box-shadow: 0 -1px 0 0 rgba(96, 96, 255, .25), 0 1px 0 0 rgba(96, 96, 255, .25);
 }
-.file-left div.line.chunk-first.chunk-last.action-add {
+.file-left div.line.chunk-start.chunk-end.action-add {
   box-shadow: 0 -1px 0 0 rgba(96, 255, 96, .25), inset 0 1px 0 0 rgba(96, 255, 96, .25);
   background-color: transparent;
 }
-.file-right div.line.chunk-first.chunk-last.action-delete {
+.file-right div.line.chunk-start.chunk-end.action-delete {
   box-shadow: 0 1px 0 0 rgba(255, 96, 96, .25), inset 0 -1px 0 0 rgba(255, 96, 96, .25);
   background-color: transparent;
 }
 
 /* context */
-div.line.excess-context {
+div.line.hide {
+  display: none;
+}
+div.line.first-hide {
+  display: block;
+  background-color: rgba(0, 0, 0, .35);
+  color: transparent;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, .35), 0 1px 0 0 rgba(0, 0, 0, .35);
+}
+div.line.first-hide span {
   display: none;
 }
 
@@ -296,7 +304,6 @@ div.line span {
 .river {
   position: relative;
   min-width: 5%;
-  margin: 2px 0;
 }
 .river .bridge {
   position: absolute;
@@ -310,6 +317,9 @@ div.line span {
 }
 .bridge.action-edit {
   fill: rgba(96, 96, 255, .25);
+}
+.bridge.action-context {
+  fill: rgba(0, 0, 0, .35);
 }
 
 /* adjust for dark themes */
@@ -353,5 +363,12 @@ div.line span {
   background-color: #292c2f;
 }
 .dark-theme .file .file-contents {
-  color: #fff;
+  color: #eee;
+}
+.dark-theme div.line.first-hide {
+  background-color: rgba(0, 0, 0, .6);
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, .6), 0 1px 0 0 rgba(0, 0, 0, .6);
+}
+.dark-theme .bridge.action-context {
+  fill: rgba(0, 0, 0, .6);
 }

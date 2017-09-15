@@ -36,7 +36,7 @@ function getDiffChunks(left, right) {
 
   // loop through changes to prepare chunk data
   for (let i = 0; i < changes.length; i++) {
-    let isEdit   = changes[i].removed && i < changes.length && changes[i+1].added;
+    let isEdit   = changes[i].removed && i < changes.length - 1 && changes[i+1].added;
     let isAdd    = isEdit ? false : changes[i].added;
     let isDelete = isEdit ? false : changes[i].removed;
     let leftSize = isAdd ? 0 : changes[i].count;
@@ -52,7 +52,9 @@ function getDiffChunks(left, right) {
       leftSize:  leftSize,
       rightSize: rightSize,
       leftLine:  leftLine,
-      rightLine: rightLine
+      rightLine: rightLine,
+      isFirst:   i === 0,
+      isLast:    i === changes.length - 1
     };
 
     chunks.push(chunk);
@@ -82,11 +84,11 @@ function applyDiff(component) {
   let rightNumbers = target.querySelector('.file-right .file-gutter').childNodes;
 
   let applyChunkClasses = function(action, lines, numbers, start, length) {
-    let end = start + length;
+    let end = Math.min(start + length, lines.length);
     for (let i = start; i < end; i++) {
       let classes = ['action-' + action];
-      if (i === start) classes.push('chunk-first');
-      if (i === end - 1) classes.push('chunk-last');
+      if (i === start)   classes.push('chunk-start');
+      if (i === end - 1) classes.push('chunk-end');
       lines[i].classList.add(...classes);
       numbers[i].classList.add(...classes);
     }
@@ -108,15 +110,15 @@ function applyDiff(component) {
         rightLines,
         rightNumbers,
         chunk.rightSize ? chunk.rightLine : chunk.rightLine - 1,
-        chunk.rightSize
+        chunk.rightSize || 1
       );
     }
 
     // do sub-chunk diffing on edits
     if (chunk.edit) {
       subDiff(
-        $(Array.prototype.slice.call(leftLines, chunk.leftLine, chunk.leftLine + chunk.leftSize + 1)),
-        $(Array.prototype.slice.call(rightLines, chunk.rightLine, chunk.rightLine + chunk.rightSize + 1))
+        $(Array.prototype.slice.call(leftLines, chunk.leftLine, chunk.leftLine + chunk.leftSize)),
+        $(Array.prototype.slice.call(rightLines, chunk.rightLine, chunk.rightLine + chunk.rightSize))
       );
     }
   }
@@ -134,25 +136,35 @@ function adjustContext(component, context) {
   let riverLine    = 0;
 
   for (let i = 0; i < component.chunks.length; i++) {
-    let chunk     = component.chunks[i];
-    let isFirst   = i === 0;
-    let isLast    = i === component.chunks.length - 1;
-    let leftSize  = chunk.leftSize;
-    let rightSize = chunk.rightSize;
-    let chunkSize = chunk.size;
+    let chunk      = component.chunks[i];
+    let leftSize   = chunk.leftSize;
+    let rightSize  = chunk.rightSize;
+    let chunkSize  = chunk.size;
+    let maxSize    = chunk.isFirst || chunk.isLast ? context : context * 2;
+
+    let applyLineClass = function(line, className, toggle) {
+        leftLines[chunk.leftLine + line].classList.toggle(className, toggle);
+        leftNumbers[chunk.leftLine + line].classList.toggle(className, toggle);
+        rightLines[chunk.rightLine + line].classList.toggle(className, toggle);
+        rightNumbers[chunk.rightLine + line].classList.toggle(className, toggle);
+    }
 
     // 'same' chunks may have excessive context lines
     if (chunk.same) {
       for (let j = 0; j < chunk.size; j++) {
-        let isExcess = (isFirst || j >= context) && (isLast || j < (chunk.size - context));
-        leftLines[chunk.leftLine + j].classList.toggle('excess-context', isExcess);
-        leftNumbers[chunk.leftLine + j].classList.toggle('excess-context', isExcess);
-        rightLines[chunk.rightLine + j].classList.toggle('excess-context', isExcess);
-        rightNumbers[chunk.rightLine + j].classList.toggle('excess-context', isExcess);
+        let shouldHide = (chunk.isFirst || j >= context) && (chunk.isLast || j < (chunk.size - context));
+        let firstHide  = shouldHide && (j === 0 || (!chunk.isFirst && j === context));
+        let lastHide   = shouldHide && (j === chunk.size - 1 || (!chunk.isLast && j === (chunk.size - context - 1)));
+
+        applyLineClass(j, 'hide',       shouldHide);
+        applyLineClass(j, 'first-hide', firstHide);
+        applyLineClass(j, 'last-hide',  lastHide);
       }
 
       // need to limit sizes to requested amount of context
-      chunkSize = Math.min(isFirst || isLast ? context : context * 2, chunkSize);
+      // if we hid any lines, add one to chunk size to account for the dividing line
+      chunkSize = Math.min(maxSize, chunkSize);
+      chunkSize = chunk.size > maxSize ? chunkSize + 1 : chunkSize;
       leftSize  = chunkSize;
       rightSize = chunkSize;
     }
@@ -176,6 +188,11 @@ function adjustContext(component, context) {
       drawBridge(target, chunk, 0, 0);
     }
 
+    // if we hid lines on a 'same' chunk, draw bridge for the dividing line
+    if (chunk.same && chunk.size > maxSize) {
+      drawContextBridge(target, chunk, maxSize);
+    }
+
     leftLine  += leftSize;
     rightLine += rightSize;
     riverLine += chunkSize;
@@ -189,6 +206,21 @@ function adjustContext(component, context) {
 
   // save the index on the component for use when scrolling
   component.chunkIndex = chunkIndex;
+}
+
+function drawContextBridge(target, chunk, maxSize) {
+  // determine on which line number the missing context divider appears
+  let offset = chunk.isFirst ? 0 : (chunk.isLast ? maxSize : Math.floor(maxSize / 2));
+
+  // draw-bridge expects a chunk object, so mock one up for it
+  let fakeChunk = {
+    action: 'context',
+    align: {
+      left:  { first: chunk.align.left.first  + offset, size: 1 },
+      right: { first: chunk.align.right.first + offset, size: 1 }
+    }
+  };
+  drawBridge(target, fakeChunk, 0, 0);
 }
 
 function subDiff(left, right) {
