@@ -57,18 +57,6 @@ let app = new Vue({
     };
   },
   mounted: function () {
-    // take over scrolling via mouse 'wheel' events
-    $(document.body).on('wheel', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      requestAnimationFrame(() => {
-        Math.abs(event.originalEvent.deltaX) > Math.abs(event.originalEvent.deltaY)
-          ? this.scrollX(event)
-          : this.scrollY(event);
-      });
-    });
-
     // find all git repositories in the user's home directory
     let gitWorker = new Worker('workers/find-repos.js');
     gitWorker.onmessage = (event) => {
@@ -88,9 +76,19 @@ let app = new Vue({
         if (file.inWorkingTree()) this.files.working.push(file);
       });
     },
+    scrollFiles: function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      requestAnimationFrame(() => {
+        Math.abs(event.deltaX) > Math.abs(event.deltaY)
+          ? this.scrollX(event)
+          : this.scrollY(event);
+      });
+    },
     scrollX: function (event) {
-      let clientX = event.originalEvent.clientX;
-      let clientY = event.originalEvent.clientY;
+      let clientX = event.clientX;
+      let clientY = event.clientY;
       let diff    = this.getHoveredDiff(clientX, clientY);
       if (!diff) return;
 
@@ -100,11 +98,11 @@ let app = new Vue({
       let master = left.scrollWidth > right.scrollWidth ? left  : right;
       let slave  = left.scrollWidth > right.scrollWidth ? right : left;
 
-      master.scrollLeft += event.originalEvent.deltaX;
+      master.scrollLeft += event.deltaX;
       slave.scrollLeft   = master.scrollLeft;
     },
     scrollY: function (event) {
-      document.body.scrollTop += event.originalEvent.deltaY;
+      document.body.scrollTop += event.deltaY;
       let diffs = this.getVisibleDiffs();
       for (let diff of diffs) {
         legacy.scrollY(diff, document.body.scrollTop);
@@ -159,20 +157,22 @@ let app = new Vue({
       </sidebar>
       <template v-if="activeRepository">
         <toolbar v-bind:buttons="toolbarButtons"></toolbar>
-        <file-list
-          ref="stagedList"
-          v-bind:activeRepository="activeRepository"
-          v-bind:heading="'Staged'"
-          v-bind:files="files.index"
-          v-bind:isIndexView="true">
-        </file-list>
-        <file-list
-          ref="unstagedList"
-          v-bind:activeRepository="activeRepository"
-          v-bind:heading="'Unstaged'"
-          v-bind:files="files.working"
-          v-bind:isIndexView="false">
-        </file-list>
+        <div v-on:wheel="scrollFiles">
+          <file-list
+            ref="stagedList"
+            v-bind:activeRepository="activeRepository"
+            v-bind:heading="'Staged'"
+            v-bind:files="files.index"
+            v-bind:isIndexView="true">
+          </file-list>
+          <file-list
+            ref="unstagedList"
+            v-bind:activeRepository="activeRepository"
+            v-bind:heading="'Unstaged'"
+            v-bind:files="files.working"
+            v-bind:isIndexView="false">
+          </file-list>
+        </div>
       </template>
       <template v-else>
         <welcome/>

@@ -16,12 +16,14 @@ Vue.component('sidebar', {
   },
   template: `
     <div class="sidebar">
-      <div
-        v-for="repository in repositories"
-        v-bind:class="['button', { active: repository === activeRepository }]"
-        v-bind:title="repository.name"
-        v-on:click="activateRepository(repository)">
-        {{ repository.name.substr(0,2) }}
+      <div class="repositories">
+        <div
+          v-for="repository in repositories"
+          v-bind:class="['button', { active: repository === activeRepository }]"
+          v-bind:title="repository.name"
+          v-on:click="activateRepository(repository)">
+          {{ repository.name.substr(0,2) }}
+        </div>
       </div>
       <div class="button add">+</div>
     </div>

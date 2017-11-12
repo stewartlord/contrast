@@ -31,7 +31,15 @@ body {
   background-color: #f5f5f5;
   border-right: 1px solid #ddd;
   font-family: sans-serif;
-  padding: 11px;
+  padding: 11px 0 11px 11px;
+}
+.sidebar .repositories {
+  max-height: calc(100vh - 60px);
+  overflow-y: scroll;
+
+}
+.sidebar .repositories::-webkit-scrollbar {
+  display: none;
 }
 .sidebar .button {
   position: relative;
