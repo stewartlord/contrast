@@ -16,6 +16,19 @@ const welcome  = require('./components/welcome');
 window.jQuery  = jQuery;
 window.$       = jQuery;
 
+const REPOSITORY_COLORS = [
+  'lightblue',
+  'lightpink',
+  'indianred',
+  'darkorange',
+  'gold',
+  'sandybrown',
+  'springgreen',
+  'turquoise',
+  'lightskyblue',
+  'fuschia'
+];
+
 // setup state storage
 Vue.use(Vuex);
 const store = new Vuex.Store({
@@ -23,8 +36,14 @@ const store = new Vuex.Store({
     repositories: []
   },
   mutations: {
-    updateRepositories (state, repositories) {
-      state.repositories = repositories;
+    updateRepositories (state, found) {
+      let known = state.repositories;
+      for (let repository of found) {
+        if (known.find(existing => existing.path === repository.path)) return;
+        repository.color = REPOSITORY_COLORS[Math.floor(Math.random() * REPOSITORY_COLORS.length)];
+        known.push(respository);
+      }
+      state.repositories = known;
     }
   },
   plugins: [

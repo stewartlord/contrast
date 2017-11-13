@@ -52,38 +52,41 @@ body {
 }
 .sidebar .button {
   position: relative;
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   margin-bottom: 11px;
   background-color: #555;
   border-radius: 4px;
-  color: #ccc;
+  border: 2px solid transparent;
+  color: #fff;
   font-size: 1em;
-  line-height: 39px;
+  line-height: 35px;
   text-align: center;
   text-transform: uppercase;
   cursor: default;
+  opacity: .75;
 }
 .sidebar .button.add {
   font-size: 1.8em;
   background-color: #777;
   color: #ddd;
+  opacity: 1;
 }
 .sidebar .button.active,
 .sidebar .button:hover {
-  color: #fff;
+  opacity: 1;
 }
 .sidebar .button.active::after,
 .sidebar .button:hover::after {
   position: absolute;
   display: block;
-  width: 4px;
-  height: 28px;
-  right: -7px;
-  top: 5px;
+  width: 5px;
+  height: 5px;
+  right: -10px;
+  top: 15px;
   content: '';
   background-color: dodgerblue;
-  border-radius: 3px;
+  border-radius: 50%;
 }
 .sidebar .button.add:hover::after {
   display: none;

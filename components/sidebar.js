@@ -20,6 +20,7 @@ Vue.component('sidebar', {
         <div
           v-for="repository in repositories"
           v-bind:class="['button', { active: repository === activeRepository }]"
+          v-bind:style="{ borderColor: repository.color }"
           v-bind:title="repository.name"
           v-on:click="activateRepository(repository)">
           {{ repository.name.substr(0,2) }}
