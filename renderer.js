@@ -155,8 +155,8 @@ let app = new Vue({
         v-bind:activeRepository="activeRepository"
         v-on:activateRepository="activateRepository">
       </sidebar>
+      <toolbar v-bind:buttons="toolbarButtons"></toolbar>
       <template v-if="activeRepository">
-        <toolbar v-bind:buttons="toolbarButtons"></toolbar>
         <div v-on:wheel="scrollFiles">
           <file-list
             ref="stagedList"

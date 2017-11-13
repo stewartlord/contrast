@@ -34,12 +34,21 @@ body {
   padding: 11px 0 11px 11px;
 }
 .sidebar .repositories {
-  max-height: calc(100vh - 60px);
+  max-height: calc(100vh - 56px);
   overflow-y: scroll;
-
+  margin-bottom: -4px;
 }
 .sidebar .repositories::-webkit-scrollbar {
   display: none;
+}
+.sidebar .repositories::after {
+  content: '';
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  height: 25px;
+  background: linear-gradient(to top, #f5f5f5, transparent);
 }
 .sidebar .button {
   position: relative;
@@ -103,12 +112,12 @@ body {
 }
 .toolbar .button {
   display: inline-block;
-  padding: .375em;
+  padding: .4375em;
   color: #555;
 }
 .toolbar .button .fa {
-  font-size: 1.5em;
-  padding: calc(1em / 12);
+  font-size: 1.25em;
+  padding: calc(1em / 6);
 }
 .toolbar .button:hover .label,
 .toolbar .button:hover .fa {
@@ -161,10 +170,7 @@ body {
   right: 0;
 }
 .file-status .toolbar .button {
-  padding: .3125em;
-}
-.file-status .toolbar .button .fa {
-  font-size: 1.25em;
+  padding: .25em;
 }
 
 /* file-diff */
@@ -203,6 +209,7 @@ body {
 }
 .file .file-contents {
   overflow-x: scroll;
+  padding-bottom: 1px;
 }
 .file .file-contents::-webkit-scrollbar {
   display: none;
@@ -337,6 +344,9 @@ div.line span {
 .dark-theme .sidebar {
   background-color: #333;
   border-right: 1px solid #111;
+}
+.dark-theme .sidebar .repositories::after {
+  background: linear-gradient(to top, #333333, transparent);
 }
 .dark-theme .welcome {
   background-image: url('icon/welcome-dark.png');
