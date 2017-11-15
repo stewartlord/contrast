@@ -9,7 +9,7 @@ const Vuex     = require('vuex');
 
 const legacy   = require('./legacy');
 const fileList = require('./components/file-list');
-const sidebar  = require('./components/sidebar');
+const { sidebar, SIDEBAR_COLORS }  = require('./components/sidebar');
 const toolbar  = require('./components/toolbar');
 const welcome  = require('./components/welcome');
 
@@ -36,12 +36,12 @@ const store = new Vuex.Store({
     repositories: []
   },
   mutations: {
-    updateRepositories (state, found) {
+    setRepositories (state, found) {
       let known = state.repositories;
       for (let repository of found) {
-        if (known.find(existing => existing.path === repository.path)) return;
-        repository.color = REPOSITORY_COLORS[Math.floor(Math.random() * REPOSITORY_COLORS.length)];
-        known.push(respository);
+       if (known.find(existing => existing.path === repository.path)) return;
+       repository.color = Math.floor(Math.random() * SIDEBAR_COLORS.length);
+       known.push(repository);
       }
       state.repositories = known;
     }
@@ -79,7 +79,7 @@ let app = new Vue({
     // find all git repositories in the user's home directory
     let gitWorker = new Worker('workers/find-repos.js');
     gitWorker.onmessage = (event) => {
-      this.$store.commit('updateRepositories', event.data);
+      this.$store.commit('setRepositories', event.data);
     }
   },
   methods: {

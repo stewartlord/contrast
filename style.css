@@ -34,9 +34,8 @@ body {
   padding: 11px 0 11px 11px;
 }
 .sidebar .repositories {
-  max-height: calc(100vh - 56px);
+  max-height: calc(100vh - 60px);
   overflow-y: scroll;
-  margin-bottom: -4px;
 }
 .sidebar .repositories::-webkit-scrollbar {
   display: none;
@@ -44,37 +43,35 @@ body {
 .sidebar .repositories::after {
   content: '';
   position: absolute;
-  bottom: 40px;
+  bottom: 49px;
   left: 0;
   right: 0;
-  height: 25px;
+  height: 20px;
   background: linear-gradient(to top, #f5f5f5, transparent);
+  pointer-events: none;
 }
 .sidebar .button {
   position: relative;
   width: 34px;
   height: 34px;
   margin-bottom: 11px;
-  background-color: #555;
   border-radius: 4px;
   border: 2px solid transparent;
-  color: #fff;
+  color: #555;
   font-size: 1em;
+  font-weight: bold;
   line-height: 35px;
   text-align: center;
   text-transform: uppercase;
   cursor: default;
-  opacity: .75;
+  transition: background-color .25s, color .25s;
 }
-.sidebar .button.add {
-  font-size: 1.8em;
-  background-color: #777;
-  color: #ddd;
-  opacity: 1;
+.sidebar .button:not(:hover):not(.active):not(.add) {
+  background-color: transparent !important;
 }
 .sidebar .button.active,
 .sidebar .button:hover {
-  opacity: 1;
+  color: #000;
 }
 .sidebar .button.active::after,
 .sidebar .button:hover::after {
@@ -85,8 +82,15 @@ body {
   right: -10px;
   top: 15px;
   content: '';
-  background-color: dodgerblue;
+  background-color: black;
   border-radius: 50%;
+}
+.sidebar .button.add {
+  font-size: 1.8em;
+  background-color: #ccc;
+}
+.sidebar .button.add:hover {
+  background-color: #aaa;
 }
 .sidebar .button.add:hover::after {
   display: none;
@@ -202,10 +206,10 @@ body {
   background-color: #f7f7f7;
 }
 .file-left {
-  box-shadow: 1px 0 0 0 rgba(255, 255, 255, .15);
+  box-shadow: 1px 0 0 0 rgba(0, 0, 0, .15);
 }
 .file-right {
-  box-shadow: -1px 0 0 0 rgba(255, 255, 255, .15);
+  box-shadow: -1px 0 0 0 rgba(0, 0, 0, .15);
 }
 .file .file-offset {
   position: relative;
@@ -283,9 +287,9 @@ div.line.hide {
 }
 div.line.first-hide {
   display: block;
-  background-color: rgba(0, 0, 0, .35);
+  background-color: rgba(0, 0, 0, .15);
   color: transparent;
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, .35), 0 1px 0 0 rgba(0, 0, 0, .35);
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, .15), 0 1px 0 0 rgba(0, 0, 0, .15);
 }
 div.line.first-hide span {
   display: none;
@@ -337,7 +341,7 @@ div.line span {
   fill: rgba(96, 96, 255, .25);
 }
 .bridge.action-context {
-  fill: rgba(0, 0, 0, .35);
+  fill: rgba(0, 0, 0, .15);
 }
 
 /* adjust for dark themes */
@@ -350,6 +354,23 @@ div.line span {
 }
 .dark-theme .sidebar .repositories::after {
   background: linear-gradient(to top, #333333, transparent);
+}
+.dark-theme .sidebar .button {
+  color: #ccc;
+}
+.dark-theme .sidebar .button:hover,
+.dark-theme .sidebar .button.active {
+  color: #fff;
+}
+.dark-theme .sidebar .button.active::after,
+.dark-theme .sidebar .button:hover::after {
+  background-color: #fff;
+}
+.dark-theme .sidebar .button.add {
+  background-color: #555;
+}
+.dark-theme .sidebar .button.add:hover {
+  background-color: #777;
 }
 .dark-theme .welcome {
   background-image: url('icon/welcome-dark.png');
@@ -382,6 +403,12 @@ div.line span {
 }
 .dark-theme .file::before {
   background-color: #292c2f;
+}
+.dark-theme .file-left {
+  box-shadow: 1px 0 0 0 rgba(255, 255, 255, .15);
+}
+.dark-theme .file-right {
+  box-shadow: -1px 0 0 0 rgba(255, 255, 255, .15);
 }
 .dark-theme .file .file-contents {
   color: #eee;
