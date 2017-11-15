@@ -17,7 +17,7 @@ Vue.component('toolbar', {
         button.menu().popup(
           electron.remote.getCurrentWindow(),
           Math.round(buttonElement.offset().left),
-          Math.round(buttonElement.offset().top + buttonElement.outerHeight())
+          buttonElement.outerHeight()
         );
       }
     }

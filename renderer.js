@@ -16,24 +16,17 @@ const welcome  = require('./components/welcome');
 window.jQuery  = jQuery;
 window.$       = jQuery;
 
-const REPOSITORY_COLORS = [
-  'lightblue',
-  'lightpink',
-  'indianred',
-  'darkorange',
-  'gold',
-  'sandybrown',
-  'springgreen',
-  'turquoise',
-  'lightskyblue',
-  'fuschia'
+const THEMES = [
+  {label: 'Dark',  file: 'themes/atom-dark-syntax.css'},
+  {label: 'Light', file: 'themes/atom-light-syntax.css'}
 ];
 
 // setup state storage
 Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
-    repositories: []
+    repositories: [],
+    theme: THEMES[0]
   },
   mutations: {
     setRepositories (state, found) {
@@ -44,6 +37,9 @@ const store = new Vuex.Store({
        known.push(repository);
       }
       state.repositories = known;
+    },
+    setTheme (state, theme) {
+      state.theme = theme;
     }
   },
   plugins: [
@@ -55,6 +51,11 @@ const store = new Vuex.Store({
 let app = new Vue({
   el: 'app',
   store,
+  computed: {
+    theme: function () {
+      return this.$store.state.theme;
+    }
+  },
   data: function () {
     return {
       activeRepository: null,
@@ -71,7 +72,7 @@ let app = new Vue({
         label: 'Theme',
         className: 'theme',
         iconClass: 'fa fa-paint-brush',
-        menu: legacy.getThemeMenu
+        menu: this.getThemeMenu
       }]
     };
   },
@@ -166,10 +167,31 @@ let app = new Vue({
         }
       }
       return visible;
+    },
+    getThemeMenu: function () {
+      const Menu = electron.remote.Menu;
+      const Item = electron.remote.MenuItem;
+
+      let menu = new Menu();
+      for (let theme of THEMES) {
+        menu.append(new Item({
+          label:   theme.label,
+          type:    'checkbox',
+          checked: theme.file === this.$store.state.theme.file,
+          click:   () => this.$store.commit('setTheme', theme)
+        }));
+      }
+
+      return menu;
     }
   },
   template: `
-    <div v-bind:class="{ 'app': true, 'active-repository': activeRepository }">
+    <div v-bind:class="[
+      'app',
+      theme.label.toLowerCase() + '-theme',
+      activeRepository ? 'active-repository': ''
+    ]">
+      <link v-bind:href="theme.file" rel="stylesheet">
       <sidebar
         v-bind:activeRepository="activeRepository"
         v-on:activateRepository="activateRepository">

@@ -345,7 +345,7 @@ div.line span {
 }
 
 /* adjust for dark themes */
-.dark-theme .app {
+.dark-theme.app {
   background-color: #222;
 }
 .dark-theme .sidebar {
@@ -375,7 +375,7 @@ div.line span {
 .dark-theme .welcome {
   background-image: url('icon/welcome-dark.png');
 }
-.dark-theme .app > .toolbar {
+.dark-theme.app > .toolbar {
   background-color: #333;
   border-bottom: 1px solid #111;
 }

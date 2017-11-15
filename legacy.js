@@ -457,43 +457,9 @@ function scrollY(diff, scrollTop) {
   });
 }
 
-function getThemeMenu() {
-  var Menu = electron.remote.Menu,
-      Item = electron.remote.MenuItem,
-      menu = new Menu();
-
-  var themes = [
-    {label: 'Dark',  file: 'themes/atom-dark-syntax.css'},
-    {label: 'Light', file: 'themes/atom-light-syntax.css'}
-  ];
-
-  for (let i = 0; i < themes.length; i++) {
-    menu.append(new Item({
-      label:   themes[i].label,
-      type:    'checkbox',
-      checked: themes[i].file === getCurrentTheme(),
-      click:   function(){ switchTheme(themes[i].file); }
-    }));
-  }
-
-  return menu;
-}
-
-// @todo - this should change state on the application
-function switchTheme(theme) {
-  var isDark = theme.match(/dark/i) !== null;
-  $('html').toggleClass('dark-theme', isDark).toggleClass('light-theme', !isDark);
-  $('link.theme').attr('href', theme);
-}
-
-function getCurrentTheme() {
-  return $('link.theme').attr('href');
-}
-
 module.exports = {
   loadDiff,
   scrollX,
   scrollY,
-  refresh,
-  getThemeMenu
+  refresh
 }
