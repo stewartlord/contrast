@@ -80,6 +80,8 @@ Vue.component('file-status', {
       await index.addByPath(this.file.path());
       await index.write();
       await index.writeTree();
+
+      this.$emit('statusChanged', this.file);
     },
     unstageFile: async function () {
       let repo = await NodeGit.Repository.open(this.activeRepository.path)
@@ -93,6 +95,8 @@ Vue.component('file-status', {
         const commit = await repo.getHeadCommit();
         const result = await NodeGit.Reset.default(repo, commit, [this.file.path()]);
       }
+
+      this.$emit('statusChanged', this.file);
     }
   },
   template: `

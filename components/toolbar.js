@@ -10,6 +10,8 @@ Vue.component('toolbar', {
   },
   methods: {
     click: function (event, button) {
+      if (button.disabled && button.disabled()) return;
+
       if (button.click) {
         return button.click();
       } else if (button.menu) {

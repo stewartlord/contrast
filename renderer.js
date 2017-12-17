@@ -206,14 +206,16 @@ let app = new Vue({
             v-bind:activeRepository="activeRepository"
             v-bind:heading="'Staged'"
             v-bind:files="files.index"
-            v-bind:isIndexView="true">
+            v-bind:isIndexView="true"
+            v-on:statusChanged="getStatus">
           </file-list>
           <file-list
             ref="unstagedList"
             v-bind:activeRepository="activeRepository"
             v-bind:heading="'Unstaged'"
             v-bind:files="files.working"
-            v-bind:isIndexView="false">
+            v-bind:isIndexView="false"
+            v-on:statusChanged="getStatus">
           </file-list>
         </div>
       </template>
