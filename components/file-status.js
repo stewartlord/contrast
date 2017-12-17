@@ -46,10 +46,18 @@ Vue.component('file-status', {
       this.active = !this.active;
     },
     getLeft: async function () {
-      return this.isIndexView ? this.getHeadContent() : this.getIndexContent();
+      if (this.isIndexView) {
+        return this.file.isNew() ? '' : this.getHeadContent();
+      } else {
+        return this.file.isNew() && !this.file.inIndex() ? '' : this.getIndexContent();
+      }
     },
     getRight: async function () {
-      return this.isIndexView ? this.getIndexContent() : this.getWorkingContent();
+      if (this.isIndexView) {
+        return this.file.status().includes('INDEX_DELETED') ? '' : this.getIndexContent();
+      } else {
+        return this.file.status().includes('WT_DELETED') ? '' : this.getWorkingContent();
+      }
     },
     getHeadContent: async function () {
       const repo   = await NodeGit.Repository.open(this.activeRepository.path);
@@ -77,7 +85,11 @@ Vue.component('file-status', {
       const repo  = await NodeGit.Repository.open(this.activeRepository.path);
       const index = await repo.refreshIndex();
 
-      await index.addByPath(this.file.path());
+      if (this.file.status().includes('WT_DELETED')) {
+        await index.removeByPath(this.file.path());
+      } else {
+        await index.addByPath(this.file.path());
+      }
       await index.write();
       await index.writeTree();
 

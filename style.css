@@ -132,6 +132,10 @@ body {
   font-size: 1.25em;
   padding: calc(1em / 6);
 }
+.toolbar .button .fa-caret-down {
+  font-size: 1em;
+  margin-left: -.25em;
+}
 
 /* main toolbar */
 .app > .toolbar {
