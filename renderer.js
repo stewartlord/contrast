@@ -67,7 +67,8 @@ let app = new Vue({
         label: 'Refresh',
         className: 'refresh',
         iconClass: 'fa fa-refresh',
-        click: legacy.refresh
+        click: this.getStatus,
+        disabled: () => !this.activeRepository
       }, {
         label: 'Theme',
         className: 'theme',
@@ -86,11 +87,12 @@ let app = new Vue({
   methods: {
     activateRepository: async function (repository) {
       this.activeRepository = repository;
-
-      // get status of this repository (staged/unstaged files)
-      this.files   = {index: [], working: []};
-      const repo   = await NodeGit.Repository.open(repository.path);
+      this.getStatus();
+    },
+    getStatus: async function () {
+      const repo   = await NodeGit.Repository.open(this.activeRepository.path);
       const status = await repo.getStatus();
+      this.files   = {index: [], working: []};
       status.forEach((file) => {
         if (file.inIndex())       this.files.index.push(file);
         if (file.inWorkingTree()) this.files.working.push(file);

@@ -15,14 +15,30 @@ Vue.component('file-status', {
     'file'
   ],
   data: function () {
+    let stage = {
+      label: 'Stage File',
+      className: 'stage',
+      iconClass: 'fa fa-arrow-circle-up',
+      click: () => this.stageFile()
+    };
+    let unstage = {
+      label: 'Unstage File',
+      className: 'unstage',
+      iconClass: 'fa fa-arrow-circle-down',
+      click: () => this.unstageFile()
+    };
+
     return {
       active: false,
-      buttons: [{
-        label: 'Refresh',
-        className: 'refresh',
-        iconClass: 'fa fa-refresh',
-        click: () => this.$refs.fileDiff.refresh()
-      }]
+      buttons: [
+        {
+          label: 'Refresh',
+          className: 'refresh',
+          iconClass: 'fa fa-refresh',
+          click: () => this.$refs.fileDiff.refresh()
+        },
+        this.isIndexView ? unstage : stage
+      ]
     };
   },
   methods: {
@@ -56,6 +72,27 @@ Vue.component('file-status', {
       return new Promise(resolve => {
         fs.readFile(fullPath, 'utf8', (error, data) => resolve(data));
       });
+    },
+    stageFile: async function () {
+      const repo  = await NodeGit.Repository.open(this.activeRepository.path);
+      const index = await repo.refreshIndex();
+
+      await index.addByPath(this.file.path());
+      await index.write();
+      await index.writeTree();
+    },
+    unstageFile: async function () {
+      let repo = await NodeGit.Repository.open(this.activeRepository.path)
+
+      if (this.file.isNew()) {
+        const index = await repo.refreshIndex();
+        await index.removeByPath(this.file.path());
+        await index.write();
+        await index.writeTree();
+      } else {
+        const commit = await repo.getHeadCommit();
+        const result = await NodeGit.Reset.default(repo, commit, [this.file.path()]);
+      }
     }
   },
   template: `

@@ -27,7 +27,11 @@ Vue.component('toolbar', {
       <span
         v-for="button in buttons"
         v-bind:title="button.label"
-        v-bind:class="['button', button.className]"
+        v-bind:class="[
+          'button',
+          button.className,
+          button.disabled && button.disabled() ? 'disabled' : ''
+        ]"
         v-on:click.stop="click($event, button)">
         <i v-bind:class="button.iconClass"></i>
         <i v-if="button.menu" class="fa fa-caret-down"></i>

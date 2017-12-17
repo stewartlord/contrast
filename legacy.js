@@ -6,22 +6,14 @@ const fs         = require('fs');
 const highlights = require('highlights');
 const path       = require('path');
 
-// @todo make this file specific
-function refresh(target) {
-  chunkIndex      = [];
-  lineHeight      = null;
-  lastLeftOffset  = 0,
-  lastRightOffset = 0;
-  target.find('.file-contents, .file-gutter, .river').html("");
-  loadDiff(target, left, right);
-}
-
 function loadDiff(component, left, right, context) {
   let target = $(component.$el);
+  target.find('.file-left, .file-right').hide();
   Promise.all([
     loadFile(component.file.path(), left,  target.find('.file-left')),
     loadFile(component.file.path(), right, target.find('.file-right'))
   ]).then(function(values) {
+    target.find('.file-left, .file-right').show();
     component.chunks = getDiffChunks(values[0], values[1]);
     applyDiff(component);
     adjustContext(component, context);
@@ -459,7 +451,5 @@ function scrollY(diff, scrollTop) {
 
 module.exports = {
   loadDiff,
-  scrollX,
-  scrollY,
-  refresh
+  scrollY
 }
