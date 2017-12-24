@@ -25,6 +25,7 @@ const THEMES = [
 Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
+    activeRepository: null,
     repositories: [],
     theme: THEMES[0]
   },
@@ -37,6 +38,18 @@ const store = new Vuex.Store({
        known.push(repository);
       }
       state.repositories = known;
+    },
+    activateRepository (state, repository) {
+      state.activeRepository = repository;
+    },
+    removeRepository (state, repository) {
+      let repositories = state.repositories;
+      let index = repositories.findIndex(candidate => candidate.path === repository.path);
+      if (index > -1) {
+        repository = repositories[index];
+        repository.removed = true;
+        Vue.set(state.repositories, index, repository);
+      }
     },
     setTheme (state, theme) {
       state.theme = theme;
@@ -52,13 +65,15 @@ let app = new Vue({
   el: 'app',
   store,
   computed: {
+    activeRepository: function () {
+      return this.$store.state.activeRepository;
+    },
     theme: function () {
       return this.$store.state.theme;
     }
   },
   data: function () {
     return {
-      activeRepository: null,
       files: {
         index: [],
         working: []
@@ -77,18 +92,25 @@ let app = new Vue({
       }]
     };
   },
+  watch: {
+    activeRepository: function (repository) {
+      // Anytime the repository changes, check its status
+      this.getStatus();
+    }
+  },
   mounted: function () {
-    // find all git repositories in the user's home directory
+    // If we have an active repository, get status on it
+    if (this.activeRepository) {
+      this.getStatus();
+    }
+
+    // Find all git repositories in the user's home directory
     let gitWorker = new Worker('workers/find-repos.js');
     gitWorker.onmessage = (event) => {
       this.$store.commit('setRepositories', event.data);
     }
   },
   methods: {
-    activateRepository: async function (repository) {
-      this.activeRepository = repository;
-      this.getStatus();
-    },
     getStatus: async function () {
       const repo   = await NodeGit.Repository.open(this.activeRepository.path);
       const status = await repo.getStatus();
@@ -194,11 +216,8 @@ let app = new Vue({
       activeRepository ? 'active-repository': ''
     ]">
       <link v-bind:href="theme.file" rel="stylesheet">
-      <sidebar
-        v-bind:activeRepository="activeRepository"
-        v-on:activateRepository="activateRepository">
-      </sidebar>
-      <toolbar v-bind:buttons="toolbarButtons"></toolbar>
+      <sidebar v-bind:activeRepository="activeRepository"/>
+      <toolbar v-bind:buttons="toolbarButtons"/>
       <template v-if="activeRepository">
         <div v-on:wheel="scrollFiles">
           <file-list

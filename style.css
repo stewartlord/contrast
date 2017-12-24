@@ -171,10 +171,12 @@ body {
   padding: .5em .875em;
   background-color: #fff;
 }
+.file-status .filename {
+  font-size: .875em;
+}
 .file-status .filename .fa {
   min-width: .6em;
   padding-right: .1875em;
-  font-size: .875em;
   text-align: center;
 }
 .file-status .toolbar {
@@ -241,6 +243,7 @@ div.line {
   box-sizing: border-box;
   height: 22px;
   padding: 0 5px;
+  letter-spacing: -.25px;
 }
 div.line.action-delete {
   background-color: rgba(255, 96, 96, .25);
