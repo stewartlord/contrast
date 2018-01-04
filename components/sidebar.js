@@ -2,9 +2,10 @@
 
 const electron = require('electron');
 const Vue = require('vue/dist/vue');
+const path = require('path');
 const { REPOSITORY_COLORS } = require('../constants');
 
-const sidebar = Vue.component('sidebar', {
+Vue.component('sidebar', {
  props: ['activeRepository'],
   computed: {
     repositories: function () {
@@ -29,6 +30,23 @@ const sidebar = Vue.component('sidebar', {
       }));
 
       menu.popup(electron.remote.getCurrentWindow());
+    },
+    selectRepository: function () {
+      const dialog = electron.remote.dialog;
+
+      dialog.showOpenDialog(
+        electron.remote.getCurrentWindow(),
+        { properties: ['openDirectory'] },
+        (paths) => {
+          if (paths && paths.length) {
+            let directory = paths.pop();
+            this.$store.commit('addRepository', {
+              path: directory,
+              name: path.basename(directory)
+            });
+          }
+        }
+      );
     }
   },
   template: `
@@ -36,7 +54,7 @@ const sidebar = Vue.component('sidebar', {
       <div class="repositories">
         <div
           v-for="repository in repositories"
-          v-bind:class="['button', { active: repository.path === activeRepository.path }]"
+          v-bind:class="['button', { active: activeRepository && activeRepository.path === repository.path }]"
           v-bind:style="{ backgroundColor: getColor(repository), borderColor: getColor(repository) }"
           v-bind:title="repository.name"
           v-on:click="activateRepository(repository)"
@@ -44,7 +62,7 @@ const sidebar = Vue.component('sidebar', {
           {{ repository.name.substr(0,2) }}
         </div>
       </div>
-      <div class="button add">+</div>
+      <div class="button add" v-on:click="selectRepository()">+</div>
     </div>
   `
 });

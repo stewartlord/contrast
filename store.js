@@ -7,6 +7,20 @@ const { REPOSITORY_COLORS, THEMES } = require('./constants');
 
 Vue.use(Vuex);
 
+const findRepository = (repository, repositories) => {
+  return repositories.findIndex(candidate => candidate.path === repository.path);
+}
+
+const addRepository = (repository, repositories) => {
+  let index = findRepository(repository, repositories);
+  if (index > -1) {
+    repositories.splice(index, 1);
+  }
+  repository.color = Math.floor(Math.random() * REPOSITORY_COLORS.length);
+  repositories.push(repository);
+  return repositories;
+}
+
 const store = new Vuex.Store({
   state: {
     activeRepository: null,
@@ -14,26 +28,33 @@ const store = new Vuex.Store({
     theme: THEMES[0]
   },
   mutations: {
-    setRepositories (state, found) {
-      let known = state.repositories;
-      for (let repository of found) {
-       if (known.find(existing => existing.path === repository.path)) return;
-       repository.color = Math.floor(Math.random() * REPOSITORY_COLORS.length);
-       known.push(repository);
-      }
-      state.repositories = known;
-    },
     activateRepository (state, repository) {
       state.activeRepository = repository;
     },
+    addRepository (state, repository) {
+      state.repositories = addRepository(repository, state.repositories);
+    },
     removeRepository (state, repository) {
       let repositories = state.repositories;
-      let index = repositories.findIndex(candidate => candidate.path === repository.path);
-      if (index > -1) {
-        repository = repositories[index];
-        repository.removed = true;
-        Vue.set(state.repositories, index, repository);
+      let index = findRepository(repository, repositories);
+      if (index === -1) return;
+
+      repository = repositories[index];
+      repository.removed = true;
+      Vue.set(state.repositories, index, repository);
+
+      let activeRepository = state.activeRepository;
+      if (activeRepository && activeRepository.path === repository.path) {
+        state.activeRepository = null;
       }
+    },
+    setRepositories (state, found) {
+      let repositories = state.repositories;
+      for (let repository of found) {
+        if (findRepository(repository, repositories) > -1) continue;
+        repositories = addRepository(repository, repositories);
+      }
+      state.repositories = repositories;
     },
     setTheme (state, theme) {
       state.theme = theme;

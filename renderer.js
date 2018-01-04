@@ -69,13 +69,18 @@ let app = new Vue({
   },
   methods: {
     getStatus: async function () {
-      const repo   = await NodeGit.Repository.open(this.activeRepository.path);
-      const status = await repo.getStatus();
-      this.files   = {index: [], working: []};
-      status.forEach((file) => {
-        if (file.inIndex())       this.files.index.push(file);
-        if (file.inWorkingTree()) this.files.working.push(file);
-      });
+      this.files = {index: [], working: []};
+      if (!this.activeRepository) return;
+      try {
+        const repo   = await NodeGit.Repository.open(this.activeRepository.path);
+        const status = await repo.getStatus();
+        status.forEach((file) => {
+          if (file.inIndex())       this.files.index.push(file);
+          if (file.inWorkingTree()) this.files.working.push(file);
+        });
+      } catch (error) {
+        alert(error);
+      }
     },
     scrollFiles: function (event) {
       event.preventDefault();
