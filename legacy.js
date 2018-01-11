@@ -8,12 +8,12 @@ const path       = require('path');
 
 function loadDiff(component, left, right, context) {
   let target = $(component.$el);
-  target.find('.file-left, .file-right').hide();
+  target.find('.file-left, .file-right').css('display', 'none');
   Promise.all([
     loadFile(component.file.path(), left,  target.find('.file-left')),
     loadFile(component.file.path(), right, target.find('.file-right'))
   ]).then(function(values) {
-    target.find('.file-left, .file-right').show();
+    target.find('.file-left, .file-right').css('display', '');
     component.chunks = getDiffChunks(values[0], values[1]);
     applyDiff(component);
     adjustContext(component, context);
@@ -76,6 +76,7 @@ function applyDiff(component) {
   let rightNumbers = target.querySelector('.file-right .file-gutter').childNodes;
 
   let applyChunkClasses = function(action, lines, numbers, start, length) {
+    if (!lines.length) return;
     let end = Math.min(start + length, lines.length);
     for (let i = start; i < end; i++) {
       let classes = ['action-' + action];

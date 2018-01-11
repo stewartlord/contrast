@@ -29,6 +29,7 @@ Vue.component('file-status', {
     };
 
     return {
+      actionClass: `action-${this.getActionName()}`,
       active: false,
       buttons: [
         {
@@ -44,6 +45,18 @@ Vue.component('file-status', {
   methods: {
     activate: function () {
       this.active = !this.active;
+    },
+    getActionName: function () {
+      let status = this.file.status();
+      if ((this.isIndexView && status.includes('INDEX_NEW'))
+        || (!this.isIndexView && status.includes('WT_NEW'))) {
+        return 'add';
+      }
+      if ((this.isIndexView && status.includes('INDEX_DELETED'))
+        || (!this.isIndexView && status.includes('WT_DELETED'))) {
+        return 'delete';
+      }
+      return 'edit';
     },
     getLeft: async function () {
       if (this.isIndexView) {
@@ -112,7 +125,7 @@ Vue.component('file-status', {
     }
   },
   template: `
-    <div v-bind:class="['file-status', { active: active }]">
+    <div v-bind:class="['file-status', actionClass, { active }]">
       <div class="header" v-on:click="activate">
         <span class="filename">
           <i v-bind:class="['fa', { 'fa-caret-right': !active, 'fa-caret-down': active }]"></i>

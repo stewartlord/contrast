@@ -171,6 +171,15 @@ body {
   padding: .5em .875em;
   background-color: #fff;
 }
+.file-status.action-edit .header {
+  box-shadow: inset 4px 0px 0px rgba(64, 64, 255, .5);
+}
+.file-status.action-add .header {
+  box-shadow: inset 4px 0px 0px rgba(64, 255, 64, .5);
+}
+.file-status.action-delete .header {
+  box-shadow: inset 4px 0px 0px rgba(255, 64, 64, .5);
+}
 .file-status .filename {
   font-size: .875em;
 }
@@ -186,6 +195,12 @@ body {
 }
 .file-status .toolbar .button {
   padding: .25em;
+}
+.file-status.action-add .file-left,
+.file-status.action-add .river,
+.file-status.action-delete .file-right,
+.file-status.action-delete .river {
+    display: none;
 }
 
 /* file-diff */
