@@ -96,22 +96,15 @@ let app = new Vue({
       let clientX = event.clientX;
       let clientY = event.clientY;
       let diff    = this.getHoveredDiff(clientX, clientY);
-      if (!diff) return;
-
-      let target = $(diff.$el);
-      let left   = target.find('.file-left .file-contents')[0];
-      let right  = target.find('.file-right .file-contents')[0];
-      let master = left.scrollWidth > right.scrollWidth ? left  : right;
-      let slave  = left.scrollWidth > right.scrollWidth ? right : left;
-
-      master.scrollLeft += event.deltaX;
-      slave.scrollLeft   = master.scrollLeft;
+      if (diff) {
+        diff.scrollX(event);
+      }
     },
     scrollY: function (event) {
       document.body.scrollTop += event.deltaY;
       let diffs = this.getVisibleDiffs();
       for (let diff of diffs) {
-        legacy.scrollY(diff, document.body.scrollTop);
+        diff.scrollY(event, document.body.scrollTop);
       }
     },
     getHoveredDiff: function (x, y) {

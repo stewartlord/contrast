@@ -203,15 +203,17 @@ body {
     display: none;
 }
 
-/* file-diff */
+/* file diff */
 .file-diff {
-  display: flex;
-  position: relative;
   border-bottom: 1px solid #ddd;
 }
 
-/* file containers */
-.file {
+/* text diff */
+.text-diff {
+  display: flex;
+  position: relative;
+}
+.text-diff .file {
   flex: 1;
   min-width: 0;
   box-sizing: border-box;
@@ -219,7 +221,7 @@ body {
   line-height: 22px;
   background-color: #fff;
 }
-.file::before {
+.text-diff .file::before {
   position: absolute;
   content: ' ';
   z-index: 5;
@@ -228,23 +230,23 @@ body {
   width: 60px;
   background-color: #f7f7f7;
 }
-.file-left {
+.text-diff .file-left {
   box-shadow: 1px 0 0 0 rgba(0, 0, 0, .15);
 }
-.file-right {
+.text-diff .file-right {
   box-shadow: -1px 0 0 0 rgba(0, 0, 0, .15);
 }
-.file .file-offset {
+.text-diff .file .file-offset {
   position: relative;
 }
-.file .file-contents {
+.text-diff .file .file-contents {
   overflow-x: scroll;
   padding-bottom: 1px;
 }
-.file .file-contents::-webkit-scrollbar {
+.text-diff .file .file-contents::-webkit-scrollbar {
   display: none;
 }
-.file .file-contents pre {
+.text-diff .file .file-contents pre {
   font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
   display: inline-block;
   vertical-align: top;
@@ -254,80 +256,80 @@ body {
 }
 
 /* file lines */
-div.line {
+.text-diff div.line {
   box-sizing: border-box;
   height: 22px;
   padding: 0 5px;
   letter-spacing: -.25px;
 }
-div.line.action-delete {
+.text-diff div.line.action-delete {
   background-color: rgba(255, 96, 96, .25);
 }
-div.line.action-add {
+.text-diff div.line.action-add {
   background-color: rgba(96, 255, 96, .25);
 }
-div.line.action-edit {
+.text-diff div.line.action-edit {
   background-color: rgba(96, 96, 255, .25);
 }
-div.line.chunk-start.action-delete {
+.text-diff div.line.chunk-start.action-delete {
   box-shadow: 0 -1px 0 0 rgba(255, 96, 96, .25);
 }
-div.line.chunk-start.action-add {
+.text-diff div.line.chunk-start.action-add {
   box-shadow: 0 -1px 0 0 rgba(96, 255, 96, .25);
 }
-div.line.chunk-start.action-edit {
+.text-diff div.line.chunk-start.action-edit {
   box-shadow: 0 -1px 0 0 rgba(96, 96, 255, .25);
 }
-div.line.chunk-end.action-delete {
+.text-diff div.line.chunk-end.action-delete {
   box-shadow: 0 1px 0 0 rgba(255, 96, 96, .25);
 }
-div.line.chunk-end.action-add {
+.text-diff div.line.chunk-end.action-add {
   box-shadow: 0 1px 0 0 rgba(96, 255, 96, .25);
 }
-div.line.chunk-end.action-edit {
+.text-diff div.line.chunk-end.action-edit {
   box-shadow: 0 1px 0 0 rgba(96, 96, 255, .25);
 }
-div.line.chunk-start.chunk-end.action-delete {
+.text-diff div.line.chunk-start.chunk-end.action-delete {
   box-shadow: 0 -1px 0 0 rgba(255, 96, 96, .25), 0 1px 0 0 rgba(255, 96, 96, .25);
 }
-div.line.chunk-start.chunk-end.action-add {
+.text-diff div.line.chunk-start.chunk-end.action-add {
   box-shadow: 0 -1px 0 0 rgba(96, 255, 96, .25), 0 1px 0 0 rgba(96, 255, 96, .25);
 }
-div.line.chunk-start.chunk-end.action-edit {
+.text-diff div.line.chunk-start.chunk-end.action-edit {
   box-shadow: 0 -1px 0 0 rgba(96, 96, 255, .25), 0 1px 0 0 rgba(96, 96, 255, .25);
 }
-.file-left div.line.chunk-start.chunk-end.action-add {
+.text-diff .file-left div.line.chunk-start.chunk-end.action-add {
   box-shadow: 0 -1px 0 0 rgba(96, 255, 96, .25), inset 0 1px 0 0 rgba(96, 255, 96, .25);
   background-color: transparent;
 }
-.file-right div.line.chunk-start.chunk-end.action-delete {
+.text-diff .file-right div.line.chunk-start.chunk-end.action-delete {
   box-shadow: 0 1px 0 0 rgba(255, 96, 96, .25), inset 0 -1px 0 0 rgba(255, 96, 96, .25);
   background-color: transparent;
 }
 
 /* context */
-div.line.hide {
+.text-diff div.line.hide {
   display: none;
 }
-div.line.first-hide {
+.text-diff div.line.first-hide {
   display: block;
   background-color: rgba(0, 0, 0, .10);
   color: transparent;
   box-shadow: 0 -1px 0 0 rgba(0, 0, 0, .10), 0 1px 0 0 rgba(0, 0, 0, .10);
 }
-div.line.first-hide span {
+.text-diff div.line.first-hide span {
   display: none;
 }
 
 /* sub-chunks */
-div.line span {
+.text-diff div.line span {
   display: inline-block;
 }
-.sub-chunk {
+.text-diff .sub-chunk {
   background-color: rgba(128, 128, 255, .35);
 }
-.file-left .sub-chunk.action-add,
-.file-right .sub-chunk.action-delete {
+.text-diff .file-left .sub-chunk.action-add,
+.text-diff .file-right .sub-chunk.action-delete {
   vertical-align: bottom;
   min-width: 2px;
   min-height: 22px;
@@ -335,36 +337,36 @@ div.line span {
 }
 
 /* file gutter and line numbers */
-.file-gutter {
+.text-diff .file-gutter {
   position: absolute;
   z-index: 10;
   min-width: 60px;
   font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
   color: #888;
 }
-.file-gutter div.line {
+.text-diff .file-gutter div.line {
   padding: 0 10px;
 }
 
 /* river and bridges */
-.river {
+.text-diff .river {
   position: relative;
   min-width: 5%;
 }
-.river .bridge {
+.text-diff .river .bridge {
   position: absolute;
   width: 100%;
 }
-.bridge.action-delete {
+.text-diff .bridge.action-delete {
   fill: rgba(255, 96, 96, .25);
 }
-.bridge.action-add {
+.text-diff .bridge.action-add {
   fill: rgba(96, 255, 96, .25);
 }
-.bridge.action-edit {
+.text-diff .bridge.action-edit {
   fill: rgba(96, 96, 255, .25);
 }
-.bridge.action-context {
+.text-diff .bridge.action-context {
   fill: rgba(0, 0, 0, .10);
 }
 
@@ -423,25 +425,25 @@ div.line span {
 .dark-theme .file-diff {
   border-bottom: 1px solid #111;
 }
-.dark-theme .file {
+.dark-theme .text-diff .file {
   background-color: #1d1f21;
 }
-.dark-theme .file::before {
+.dark-theme .text-diff .file::before {
   background-color: #292c2f;
 }
-.dark-theme .file-left {
+.dark-theme .text-diff .file-left {
   box-shadow: 1px 0 0 0 rgba(255, 255, 255, .15);
 }
-.dark-theme .file-right {
+.dark-theme .text-diff .file-right {
   box-shadow: -1px 0 0 0 rgba(255, 255, 255, .15);
 }
-.dark-theme .file .file-contents {
+.dark-theme .text-diff .file .file-contents {
   color: #eee;
 }
-.dark-theme div.line.first-hide {
+.dark-theme .text-diff div.line.first-hide {
   background-color: rgba(0, 0, 0, .6);
   box-shadow: 0 -1px 0 0 rgba(0, 0, 0, .6), 0 1px 0 0 rgba(0, 0, 0, .6);
 }
-.dark-theme .bridge.action-context {
+.dark-theme .text-diff .bridge.action-context {
   fill: rgba(0, 0, 0, .6);
 }

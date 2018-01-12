@@ -1,43 +1,59 @@
 'use strict';
 
-const Vue    = require('vue/dist/vue');
-
-const legacy = require('../legacy');
+const imageDiff = require('./image-diff');
+const path     = require('path');
+const textDiff = require('./text-diff');
+const Vue      = require('vue/dist/vue');
 
 Vue.component('file-diff', {
   props: ['file', 'getLeft', 'getRight'],
-  data: function () {
-    return {
-      chunks: [],
-      chunkIndex: [],
-      lastOffset: {left: 0, right: 0}
-    };
-  },
-  mounted: function () {
-    legacy.loadDiff(this, this.getLeft(), this.getRight(), 10);
-  },
   methods: {
+    isImage: function () {
+      let imageTypes = [
+        '.apng',
+        '.bmp',
+        '.gif',
+        '.ico',
+        '.jpg',
+        '.jpeg',
+        '.png',
+        '.svg',
+        '.tif',
+        '.tiff',
+        '.webp',
+        '.xbm'
+      ];
+      let ext = path.extname(this.file.path());
+      return imageTypes.indexOf(ext.toLowerCase()) > -1;
+    },
     refresh: function () {
-      this.chunkIndex = [];
-      $(this.$el).find('.file-contents, .file-gutter, .river').html("");
-      legacy.loadDiff(this, this.getLeft(), this.getRight(), 10);
+      this.$refs.diffViewer.refresh();
+    },
+    scrollX: function (event) {
+      this.$refs.diffViewer.scrollX(event);
+    },
+    scrollY: function (event, scrollTop) {
+      this.$refs.diffViewer.scrollY(event, scrollTop);
     }
   },
   template: `
     <div class="file-diff">
-      <div class="file file-left">
-        <div class="file-offset">
-          <div class="file-gutter"></div>
-          <div class="file-contents"></div>
-        </div>
-      </div>
-      <div class="river"></div>
-      <div class="file file-right">
-        <div class="file-offset">
-          <div class="file-gutter"></div>
-          <div class="file-contents"></div>
-        </div>
-      </div>
+      <template v-if="isImage()">
+        <image-diff
+          ref="diffViewer"
+          v-bind:file="file"
+          v-bind:getLeft="getLeft"
+          v-bind:getRight="getRight"
+        />
+      </template>
+      <template v-else>
+        <text-diff
+          ref="diffViewer"
+          v-bind:file="file"
+          v-bind:getLeft="getLeft"
+          v-bind:getRight="getRight"
+        />
+      </template>
     </div>
   `
 });
