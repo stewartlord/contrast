@@ -331,6 +331,8 @@ function getLineHeight(target) {
 function loadFile(fileName, fileContents, container) {
   return new Promise(function(resolve, reject) {
     fileContents.then((data) => {
+      data = data.toString();
+
       // syntax highlight
       var html = new highlights().highlightSync({
         fileContents: data,

@@ -370,6 +370,17 @@ body {
   fill: rgba(0, 0, 0, .10);
 }
 
+/* image diff */
+.image-diff {
+  display: flex;
+  max-height: calc(100vh - 75px);
+}
+.image-diff img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 /* adjust for dark themes */
 .dark-theme.app {
   background-color: #222;

@@ -78,7 +78,7 @@ Vue.component('file-status', {
       const entry  = await commit.getEntry(this.file.path());
       const blob   = await entry.getBlob();
 
-      return blob.toString();
+      return blob.content();
     },
     getIndexContent: async function () {
       const repo   = await NodeGit.Repository.open(this.activeRepository.path);
@@ -86,12 +86,12 @@ Vue.component('file-status', {
       const oid    = index.getByPath(this.file.path()).id;
       const blob   = await repo.getBlob(oid);
 
-      return blob.toString();
+      return blob.content();
     },
     getWorkingContent: async function () {
       const fullPath = path.join(this.activeRepository.path, this.file.path());
       return new Promise(resolve => {
-        fs.readFile(fullPath, 'utf8', (error, data) => resolve(data));
+        fs.readFile(fullPath, null, (error, data) => resolve(data));
       });
     },
     stageFile: async function () {
