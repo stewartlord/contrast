@@ -7,17 +7,20 @@ const highlights = require('highlights');
 const path       = require('path');
 
 function loadDiff(component, left, right, context) {
-  let target = $(component.$el);
-  target.find('.file-left, .file-right').css('display', 'none');
-  Promise.all([
-    loadFile(component.file.path(), left,  target.find('.file-left')),
-    loadFile(component.file.path(), right, target.find('.file-right'))
-  ]).then(function(values) {
-    target.find('.file-left, .file-right').css('display', '');
-    component.chunks = getDiffChunks(values[0], values[1]);
-    applyDiff(component);
-    adjustContext(component, context);
-  });
+  return new Promise((resolve) => {
+    let target = $(component.$el);
+    target.find('.file-left, .file-right').css('display', 'none');
+    Promise.all([
+      loadFile(component.file.path(), left,  target.find('.file-left')),
+      loadFile(component.file.path(), right, target.find('.file-right'))
+    ]).then((values) => {
+      target.find('.file-left, .file-right').css('display', '');
+      component.chunks = getDiffChunks(values[0], values[1]);
+      applyDiff(component);
+      adjustContext(component, context);
+      resolve();
+    });
+  })
 }
 
 function getDiffChunks(left, right) {

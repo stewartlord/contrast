@@ -17,9 +17,15 @@ Vue.component('text-diff', {
   },
   methods: {
     refresh: function () {
+      this.chunks = []
       this.chunkIndex = [];
+      this.lastOffset = {left: 0, right: 0};
       $(this.$el).find('.file-contents, .file-gutter, .river').html("");
-      legacy.loadDiff(this, this.getLeft(), this.getRight(), 10);
+
+      // Load and then update scroll position
+      legacy
+        .loadDiff(this, this.getLeft(), this.getRight(), 10)
+        .then(() => this.scrollY(null, this.scrollTop));
     },
     scrollX: function (event) {
       let target = $(this.$el);
@@ -33,6 +39,7 @@ Vue.component('text-diff', {
     },
     scrollY: function (event, scrollTop) {
       legacy.scrollY(this, scrollTop);
+      this.scrollTop = scrollTop;
     }
   },
   template: `
