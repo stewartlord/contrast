@@ -1,12 +1,12 @@
 'use strict';
 
+const electron = require('electron');
+const fileDiff = require('./file-diff');
 const fs       = require('fs');
 const NodeGit  = require('nodegit');
 const path     = require('path');
-const Vue      = require('vue/dist/vue');
-
-const fileDiff = require('./file-diff');
 const toolbar  = require('./toolbar');
+const Vue      = require('vue/dist/vue');
 
 Vue.component('file-status', {
   props: [
@@ -32,6 +32,12 @@ Vue.component('file-status', {
       actionClass: `action-${this.getActionName()}`,
       active: false,
       buttons: [
+        {
+          label: 'Discard',
+          className: 'discard',
+          iconClass: 'fa fa-undo',
+          click: () => this.discardFile()
+        },
         {
           label: 'Refresh',
           className: 'refresh',
@@ -93,6 +99,29 @@ Vue.component('file-status', {
       return new Promise(resolve => {
         fs.readFile(fullPath, null, (error, data) => resolve(data));
       });
+    },
+    discardFile: async function () {
+      const dialog = electron.remote.dialog;
+
+      dialog.showMessageBox(
+        electron.remote.getCurrentWindow(),
+        {
+          message: `Are you sure you want to discard your changes to ${this.file.path()}`,
+          buttons: ['Ok', 'Cancel'],
+          defaultId: 0,
+          cancelId: 1
+        },
+        async (response) => {
+          if (response !== 0) return;
+          const repo  = await NodeGit.Repository.open(this.activeRepository.path);
+          await NodeGit.Checkout.head(repo, {
+            paths: [this.file.path()],
+            checkoutStrategy: NodeGit.Checkout.STRATEGY.FORCE | NodeGit.Checkout.STRATEGY.REMOVE_UNTRACKED
+          });
+
+          this.$emit('statusChanged', this.file);
+        }
+      );
     },
     stageFile: async function () {
       const repo  = await NodeGit.Repository.open(this.activeRepository.path);
