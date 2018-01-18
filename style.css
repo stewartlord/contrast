@@ -31,11 +31,12 @@ body {
   background-color: #f5f5f5;
   border-right: 1px solid #ddd;
   font-family: sans-serif;
-  padding: 11px 0 11px 11px;
+  padding: 0 0 11px 11px;
 }
 .sidebar .repositories {
   max-height: calc(100vh - 60px);
   overflow-y: scroll;
+  padding-top: 11px;
 }
 .sidebar .repositories::-webkit-scrollbar {
   display: none;
@@ -77,10 +78,10 @@ body {
 .sidebar .button:hover::after {
   position: absolute;
   display: block;
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   right: -10px;
-  top: 15px;
+  top: 14px;
   content: '';
   background-color: black;
   border-radius: 50%;
@@ -94,6 +95,19 @@ body {
 }
 .sidebar .button.add:hover::after {
   display: none;
+}
+.sidebar .button .badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 20px;
+  background-color: #b71c1c;
+  border-radius: 50%;
+  color: #fff;
 }
 
 /* welcome screen */

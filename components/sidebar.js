@@ -60,6 +60,7 @@ Vue.component('sidebar', {
           v-on:click="activateRepository(repository)"
           v-on:contextmenu="contextMenu(repository)">
           {{ repository.name.substr(0,2) }}
+          <div v-if="repository.statusCount" class="badge">{{ repository.statusCount }}</div>
         </div>
       </div>
       <div class="button add" v-on:click="selectRepository()">+</div>

@@ -56,6 +56,15 @@ const store = new Vuex.Store({
       }
       state.repositories = repositories;
     },
+    setStatusCount (state, { count, repository }) {
+      let repositories = state.repositories;
+      let index = findRepository(repository, repositories);
+      if (index === -1) return;
+
+      repository = repositories[index];
+      repository.statusCount = count;
+      Vue.set(state.repositories, index, repository);
+    },
     setTheme (state, theme) {
       state.theme = theme;
     }

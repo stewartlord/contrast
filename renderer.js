@@ -25,6 +25,9 @@ let app = new Vue({
     activeRepository: function () {
       return this.$store.state.activeRepository;
     },
+    repositories: function () {
+      return this.$store.state.repositories;
+    },
     theme: function () {
       return this.$store.state.theme;
     }
@@ -53,6 +56,11 @@ let app = new Vue({
     activeRepository: function (repository) {
       // Anytime the repository changes, check its status
       this.getStatus();
+    },
+    repositories: function (newRepositories, oldRepositories) {
+      // Anytime a repository is added, stat it
+      let added = newRepositories.filter(repository => oldRepositories.indexOf(repository) < 0);
+      this.statRepositories(added);
     }
   },
   mounted: function () {
@@ -61,25 +69,36 @@ let app = new Vue({
       this.getStatus();
     }
 
+    // Stat repos periodically (every 60s)
+    this.statRepositories();
+    setInterval(this.statRepositories, 1000 * 60);
+
     // Find all git repositories in the user's home directory
-    let gitWorker = new Worker('workers/find-repos.js');
-    gitWorker.onmessage = (event) => {
+    let findRepoWorker = new Worker('workers/find-repos.js');
+    findRepoWorker.onmessage = (event) => {
       this.$store.commit('setRepositories', event.data);
     }
   },
   methods: {
-    getStatus: async function () {
-      this.files = {index: [], working: []};
-      if (!this.activeRepository) return;
+    getStatus: async function (repository, quiet = false) {
+      repository = repository || this.activeRepository;
+      let files = {index: [], working: []};
       try {
-        const repo   = await NodeGit.Repository.open(this.activeRepository.path);
+        const repo   = await NodeGit.Repository.open(repository.path);
         const status = await repo.getStatus();
         status.forEach((file) => {
-          if (file.inIndex())       this.files.index.push(file);
-          if (file.inWorkingTree()) this.files.working.push(file);
+          if (file.inIndex())       files.index.push(file);
+          if (file.inWorkingTree()) files.working.push(file);
         });
+        this.$store.commit('setStatusCount', {
+          count: files.index.length + files.working.length,
+          repository: repository
+        });
+        if (repository === this.activeRepository) {
+          this.files = files;
+        }
       } catch (error) {
-        alert(error);
+        quiet ? console.error(error) : alert(error);
       }
     },
     scrollFiles: function (event) {
@@ -162,6 +181,14 @@ let app = new Vue({
       }
 
       return menu;
+    },
+    statRepositories: async function (repositories) {
+      repositories = repositories || this.repositories;
+      for (let repository of repositories) {
+        if (!repository.removed) {
+          await this.getStatus(repository, true);
+        }
+      }
     }
   },
   template: `
@@ -181,7 +208,7 @@ let app = new Vue({
             v-bind:heading="'Staged'"
             v-bind:files="files.index"
             v-bind:isIndexView="true"
-            v-on:statusChanged="getStatus">
+            v-on:statusChanged="getStatus()">
           </file-list>
           <file-list
             ref="unstagedList"
@@ -189,7 +216,7 @@ let app = new Vue({
             v-bind:heading="'Unstaged'"
             v-bind:files="files.working"
             v-bind:isIndexView="false"
-            v-on:statusChanged="getStatus">
+            v-on:statusChanged="getStatus()">
           </file-list>
         </div>
       </template>
