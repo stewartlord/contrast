@@ -29,8 +29,8 @@ Vue.component('file-list', {
         v-bind:file="file"
         v-bind:isIndexView="isIndexView"
         v-bind:key="file.path()"
-        v-on:statusChanged="statusChanged">
-      </file-status>
+        v-on:statusChanged="statusChanged"
+      />
     </div>
   `
 });
