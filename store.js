@@ -25,6 +25,7 @@ const store = new Vuex.Store({
   state: {
     activeRepository: null,
     repositories: [],
+    showCommitDialog: false,
     theme: THEMES[0]
   },
   mutations: {
@@ -47,6 +48,9 @@ const store = new Vuex.Store({
       if (activeRepository && activeRepository.path === repository.path) {
         state.activeRepository = null;
       }
+    },
+    showCommitDialog (state, show) {
+      state.showCommitDialog = show;
     },
     setRepositories (state, found) {
       let repositories = state.repositories;

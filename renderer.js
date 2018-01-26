@@ -6,6 +6,7 @@ const NodeGit  = require("nodegit");
 const persist  = require('vuex-persistedstate');
 const Vue      = require('vue/dist/vue');
 
+const commitDialog = require('./components/commit-dialog');
 const legacy   = require('./legacy');
 const fileList = require('./components/file-list');
 const sidebar  = require('./components/sidebar');
@@ -28,6 +29,9 @@ let app = new Vue({
     repositories: function () {
       return this.$store.state.repositories;
     },
+    showCommitDialog: function () {
+      return this.$store.state.showCommitDialog;
+    },
     theme: function () {
       return this.$store.state.theme;
     }
@@ -49,6 +53,12 @@ let app = new Vue({
         className: 'theme',
         iconClass: 'fa fa-paint-brush',
         menu: this.getThemeMenu
+      }, {
+        label: 'Commit',
+        className: 'commit',
+        iconClass: 'fa fa-database',
+        click: () => this.$store.commit('showCommitDialog', true),
+        disabled: () => !this.activeRepository || !this.files.index.length
       }]
     };
   },
@@ -208,21 +218,22 @@ let app = new Vue({
             v-bind:heading="'Staged'"
             v-bind:files="files.index"
             v-bind:isIndexView="true"
-            v-on:statusChanged="getStatus()">
-          </file-list>
+            v-on:statusChanged="getStatus()"
+          />
           <file-list
             ref="unstagedList"
             v-bind:activeRepository="activeRepository"
             v-bind:heading="'Unstaged'"
             v-bind:files="files.working"
             v-bind:isIndexView="false"
-            v-on:statusChanged="getStatus()">
-          </file-list>
+            v-on:statusChanged="getStatus()"
+          />
         </div>
       </template>
       <template v-else>
         <welcome/>
       </template>
+      <commit-dialog v-if="showCommitDialog" v-bind:files="files.index"/>
     </div>
   `
 });
