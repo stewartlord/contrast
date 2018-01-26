@@ -2,7 +2,7 @@
 
 const electron = require('electron');
 const fileDiff = require('./file-diff');
-const fs       = require('fs');
+const fs       = require('fs-extra');
 const NodeGit  = require('nodegit');
 const path     = require('path');
 const toolbar  = require('./toolbar');
@@ -116,9 +116,14 @@ Vue.component('file-status', {
           const repo  = await NodeGit.Repository.open(this.activeRepository.path);
           await NodeGit.Checkout.head(repo, {
             paths: [this.file.path()],
-            checkoutStrategy: NodeGit.Checkout.STRATEGY.FORCE | NodeGit.Checkout.STRATEGY.REMOVE_UNTRACKED
+            checkoutStrategy:
+              NodeGit.Checkout.STRATEGY.FORCE |
+              NodeGit.Checkout.STRATEGY.RECREATE_MISSING |
+              NodeGit.Checkout.STRATEGY.REMOVE_UNTRACKED
           });
-
+          if (this.file.status().includes('WT_NEW')) {
+            await fs.unlink(path.join(this.activeRepository.path, this.file.path()));
+          }
           this.$emit('statusChanged', this.file);
         }
       );
