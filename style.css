@@ -139,6 +139,7 @@ body {
 }
 .toolbar .button.disabled {
   color: #aaa;
+  cursor: default;
 }
 .toolbar .button:hover:not(.disabled) {
   color: #000;

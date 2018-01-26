@@ -51,8 +51,8 @@ let app = new Vue({
       }, {
         label: 'Theme',
         className: 'theme',
-        iconClass: 'fa fa-paint-brush',
-        menu: this.getThemeMenu
+        iconClass: 'fa fa-adjust',
+        click: this.toggleTheme,
       }, {
         label: 'Commit',
         className: 'commit',
@@ -176,22 +176,6 @@ let app = new Vue({
       }
       return visible;
     },
-    getThemeMenu: function () {
-      const Menu = electron.remote.Menu;
-      const Item = electron.remote.MenuItem;
-
-      let menu = new Menu();
-      for (let theme of THEMES) {
-        menu.append(new Item({
-          label:   theme.label,
-          type:    'checkbox',
-          checked: theme.file === this.$store.state.theme.file,
-          click:   () => this.$store.commit('setTheme', theme)
-        }));
-      }
-
-      return menu;
-    },
     statRepositories: async function (repositories) {
       repositories = repositories || this.repositories;
       for (let repository of repositories) {
@@ -199,6 +183,11 @@ let app = new Vue({
           await this.getStatus(repository, true);
         }
       }
+    },
+    toggleTheme: function () {
+      let currentTheme = THEMES.findIndex((theme) => theme.file === this.$store.state.theme.file);
+      let nextTheme = ++currentTheme % THEMES.length;
+      this.$store.commit('setTheme', THEMES[nextTheme]);
     }
   },
   template: `

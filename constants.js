@@ -1,7 +1,7 @@
 'use strict';
 
 const THEMES = [
-  {label: 'Dark',  file: 'themes/atom-dark-syntax.css'},
+  {label: 'Dark', file: 'themes/atom-dark-syntax.css'},
   {label: 'Light', file: 'themes/atom-light-syntax.css'}
 ];
 
