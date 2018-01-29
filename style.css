@@ -65,6 +65,7 @@ body {
   text-align: center;
   text-transform: uppercase;
   cursor: pointer;
+  user-select: none;
   transition: background-color .25s, color .25s;
 }
 .sidebar .button:not(:hover):not(.active):not(.add) {
@@ -136,6 +137,7 @@ body {
   padding: .4375em;
   color: #555;
   cursor: pointer;
+  user-select: none;
 }
 .toolbar .button.disabled {
   color: #aaa;
@@ -495,6 +497,11 @@ body {
   box-sizing: border-box;
   margin-left: 10px;
   cursor: pointer;
+  user-select: none;
+}
+.commit-dialog .button.disabled {
+  opacity: .5;
+  cursor: default;
 }
 .commit-dialog .commit {
   color: #fff;

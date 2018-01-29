@@ -222,7 +222,12 @@ let app = new Vue({
       <template v-else>
         <welcome/>
       </template>
-      <commit-dialog v-if="showCommitDialog" v-bind:files="files.index"/>
+      <commit-dialog
+        v-if="showCommitDialog"
+        v-bind:activeRepository="activeRepository"
+        v-bind:files="files.index"
+        v-on:statusChanged="getStatus()"
+      />
     </div>
   `
 });
