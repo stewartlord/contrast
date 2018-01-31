@@ -28,7 +28,7 @@ body {
   left: 0;
   z-index: 200;
   width: 60px;
-  background-color: #f5f5f5;
+  background-image: linear-gradient(#f5f5f5, #eeeeff, #f5f5f5);
   border-right: 1px solid #ddd;
   font-family: sans-serif;
   padding: 0 0 11px 11px;
@@ -69,7 +69,7 @@ body {
   transition: background-color .25s, color .25s;
 }
 .sidebar .button:not(:hover):not(.active):not(.add) {
-  background-color: transparent !important;
+  background-color: rgba(255,255,255,.75) !important;
 }
 .sidebar .button.active,
 .sidebar .button:hover {
@@ -514,7 +514,7 @@ body {
   background-color: #222;
 }
 .dark-theme .sidebar {
-  background-color: #333;
+  background-image: linear-gradient(#333, #445, #333);
   border-right: 1px solid #111;
 }
 .dark-theme .sidebar .repositories::after {
@@ -526,6 +526,9 @@ body {
 .dark-theme .sidebar .button:hover,
 .dark-theme .sidebar .button.active {
   color: #fff;
+}
+.dark-theme .sidebar .button:not(:hover):not(.active):not(.add) {
+  background-color: rgba(255,255,255,.2) !important;
 }
 .dark-theme .sidebar .button.active::after,
 .dark-theme .sidebar .button:hover::after {
