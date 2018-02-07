@@ -1,7 +1,8 @@
 'use strict';
 
+const { execFile } = require('child_process');
 const NodeGit = require('nodegit');
-const Vue     = require('vue/dist/vue');
+const Vue = require('vue/dist/vue');
 
 Vue.component('commit-dialog', {
   props: [
@@ -21,34 +22,32 @@ Vue.component('commit-dialog', {
     commit: async function () {
       if (this.checkedFiles.length === 0) return;
 
-      // Create a new tree based on head.
-      // Insert staged files that are checked.
-      // @todo: handle initial commit case (no parent)
-      // @todo: check for conflicts
-      let repo     = await NodeGit.Repository.open(this.activeRepository.path);
-      let author   = NodeGit.Signature.default(repo);
-      let index    = await repo.refreshIndex();
-      let head     = await NodeGit.Reference.nameToId(repo, "HEAD");
-      let parent   = await repo.getCommit(head);
-      let headTree = await parent.getTree();
-      let newTree  = await NodeGit.Treebuilder.create(repo, headTree);
-
-      for (let file of this.checkedFiles) {
-        let indexEntry = index.getByPath(file);
-        newTree.insert(indexEntry.path, indexEntry.id, indexEntry.mode);
-      }
-
-      await repo.createCommit('HEAD', author, author, this.description, newTree.write(), [parent]);
-
-      this.$store.commit('showCommitDialog', false)
-      this.$emit('statusChanged');
+      // Using the command-line client, because NodeGit is too flakey :/
+      const child = execFile(
+        'git',
+        ['commit', '-m', this.description, '--', ...this.checkedFiles],
+        {
+          cwd: this.activeRepository.path,
+          windowsHide: true
+        },
+        (error) => {
+          if (error) {
+            alert(error);
+          } else {
+            this.$store.commit('showCommitDialog', false)
+            this.$emit('statusChanged');
+          }
+        }
+      );
     }
   },
   template: `
     <div class="commit-dialog">
       <div class="dialog">
         <div class="message">
-          <div class="summary">{{ description.slice(0, 50) }}</div>
+          <div class="summary">{{
+            description.slice(0, description.indexOf('\\n') > -1 ? description.indexOf('\\n') : 50)
+          }}</div>
           <textarea placeholder="Description" v-model="description"/>
         </div>
         <div class="files">
