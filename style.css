@@ -231,6 +231,7 @@ body {
 .text-diff {
   display: flex;
   position: relative;
+  overflow: hidden;
 }
 .text-diff .file {
   flex: 1;
@@ -260,7 +261,7 @@ body {
 }
 .text-diff .file .file-contents {
   overflow-x: scroll;
-  padding-bottom: 1px;
+  padding: 1px 0;
 }
 .text-diff .file .file-contents::-webkit-scrollbar {
   display: none;
@@ -321,9 +322,15 @@ body {
   box-shadow: 0 -1px 0 0 rgba(96, 255, 96, .25), inset 0 1px 0 0 rgba(96, 255, 96, .25);
   background-color: transparent;
 }
+.text-diff .file-left div.line.chunk-start.chunk-end.chunk-eof.action-add {
+  box-shadow: 0 1px 0 0 rgba(96, 255, 96, .25), inset 0 -1px 0 0 rgba(96, 255, 96, .25);
+}
 .text-diff .file-right div.line.chunk-start.chunk-end.action-delete {
-  box-shadow: 0 1px 0 0 rgba(255, 96, 96, .25), inset 0 -1px 0 0 rgba(255, 96, 96, .25);
+  box-shadow: 0 -1px 0 0 rgba(255, 96, 96, .25), inset 0 1px 0 0 rgba(255, 96, 96, .25);
   background-color: transparent;
+}
+.text-diff .file-right div.line.chunk-start.chunk-end.chunk-eof.action-delete {
+  box-shadow: 0 1px 0 0 rgba(255, 96, 96, .25), inset 0 -1px 0 0 rgba(255, 96, 96, .25);
 }
 
 /* context */
@@ -362,6 +369,7 @@ body {
   min-width: 60px;
   font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
   color: #888;
+  padding: 1px 0;
 }
 .text-diff .file-gutter div.line {
   padding: 0 10px;
@@ -371,6 +379,7 @@ body {
 .text-diff .river {
   position: relative;
   min-width: 3%;
+  margin: 1px 0;
 }
 .text-diff .river .bridge {
   position: absolute;

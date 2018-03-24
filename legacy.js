@@ -78,18 +78,6 @@ function applyDiff(component) {
   let rightLines   = target.querySelector('.file-right .file-contents pre').childNodes;
   let rightNumbers = target.querySelector('.file-right .file-gutter').childNodes;
 
-  let applyChunkClasses = function(action, lines, numbers, start, length) {
-    if (!lines.length) return;
-    let end = Math.min(start + length, lines.length);
-    for (let i = start; i < end; i++) {
-      let classes = ['action-' + action];
-      if (i === start)   classes.push('chunk-start');
-      if (i === end - 1) classes.push('chunk-end');
-      lines[i].classList.add(...classes);
-      numbers[i].classList.add(...classes);
-    }
-  }
-
   for (let i = 0; i < chunks.length; i++) {
     let chunk = chunks[i];
 
@@ -105,7 +93,7 @@ function applyDiff(component) {
         chunk.action,
         rightLines,
         rightNumbers,
-        chunk.rightSize ? chunk.rightLine : chunk.rightLine - 1,
+        chunk.rightLine,
         chunk.rightSize || 1
       );
     }
@@ -117,6 +105,27 @@ function applyDiff(component) {
         $(Array.prototype.slice.call(rightLines, chunk.rightLine, chunk.rightLine + chunk.rightSize))
       );
     }
+  }
+}
+
+function applyChunkClasses(action, lines, numbers, start, length) {
+  if (!lines.length) return;
+
+  let chunkClasses = ['action-' + action];
+
+  // if index overflowed, pull back on start and flag as EOF
+  let end = Math.min(start + length, lines.length);
+  if (start === end) {
+    start--;
+    chunkClasses.push('chunk-eof');
+  }
+
+  for (let i = start; i < end; i++) {
+    let lineClasses = chunkClasses.slice();
+    if (i === start)   lineClasses.push('chunk-start');
+    if (i === end - 1) lineClasses.push('chunk-end');
+    lines[i].classList.add(...lineClasses);
+    numbers[i].classList.add(...lineClasses);
   }
 }
 
