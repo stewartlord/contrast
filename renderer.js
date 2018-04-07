@@ -7,16 +7,19 @@ const persist  = require('vuex-persistedstate');
 const Vue      = require('vue/dist/vue');
 
 const commitDialog = require('./components/commit-dialog');
-const legacy   = require('./legacy');
-const fileList = require('./components/file-list');
-const sidebar  = require('./components/sidebar');
-const store    = require('./store');
-const toolbar  = require('./components/toolbar');
-const welcome  = require('./components/welcome');
-const { THEMES } = require('./constants');
+const legacy       = require('./legacy');
+const fileList     = require('./components/file-list');
+const GitPlugin    = require('./plugins/git');
+const sidebar      = require('./components/sidebar');
+const store        = require('./store');
+const toolbar      = require('./components/toolbar');
+const welcome      = require('./components/welcome');
+const { THEMES }   = require('./constants');
 
 window.jQuery  = jQuery;
 window.$       = jQuery;
+
+Vue.use(GitPlugin);
 
 // instantiate the Vue.js application
 let app = new Vue({
@@ -58,7 +61,7 @@ let app = new Vue({
         className: 'commit',
         iconClass: 'fa fa-database',
         click: () => this.$store.commit('showCommitDialog', true),
-        disabled: () => !this.activeRepository || !this.files.index.length
+        disabled: () => !this.activeRepository
       }]
     };
   },
@@ -225,7 +228,7 @@ let app = new Vue({
       <commit-dialog
         v-if="showCommitDialog"
         v-bind:activeRepository="activeRepository"
-        v-bind:files="files.index"
+        v-bind:files="files"
         v-on:statusChanged="getStatus()"
       />
     </div>

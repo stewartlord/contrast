@@ -16,7 +16,7 @@ Vue.component('file-list', {
   },
   methods: {
     statusChanged: function (file) {
-      this.$emit('statusChanged', file);
+      this.$emit('statusChanged');
     }
   },
   template: `
@@ -25,10 +25,10 @@ Vue.component('file-list', {
       <file-status
         ref="fileStatuses"
         v-for="file in files"
+        v-bind:key="file.path()"
         v-bind:activeRepository="activeRepository"
         v-bind:file="file"
         v-bind:isIndexView="isIndexView"
-        v-bind:key="file.path()"
         v-on:statusChanged="statusChanged"
       />
     </div>

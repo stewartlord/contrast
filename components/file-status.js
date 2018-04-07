@@ -124,38 +124,17 @@ Vue.component('file-status', {
           if (this.file.status().includes('WT_NEW')) {
             await fs.unlink(path.join(this.activeRepository.path, this.file.path()));
           }
-          this.$emit('statusChanged', this.file);
+          this.$emit('statusChanged');
         }
       );
     },
     stageFile: async function () {
-      const repo  = await NodeGit.Repository.open(this.activeRepository.path);
-      const index = await repo.refreshIndex();
-
-      if (this.file.status().includes('WT_DELETED')) {
-        await index.removeByPath(this.file.path());
-      } else {
-        await index.addByPath(this.file.path());
-      }
-      await index.write();
-      await index.writeTree();
-
-      this.$emit('statusChanged', this.file);
+      await this.$git.stageFile(this.activeRepository.path, this.file);
+      this.$emit('statusChanged');
     },
     unstageFile: async function () {
-      let repo = await NodeGit.Repository.open(this.activeRepository.path)
-
-      if (this.file.isNew()) {
-        const index = await repo.refreshIndex();
-        await index.removeByPath(this.file.path());
-        await index.write();
-        await index.writeTree();
-      } else {
-        const commit = await repo.getHeadCommit();
-        const result = await NodeGit.Reset.default(repo, commit, [this.file.path()]);
-      }
-
-      this.$emit('statusChanged', this.file);
+      await this.$git.unstageFile(this.activeRepository.path, this.file);
+      this.$emit('statusChanged');
     }
   },
   template: `

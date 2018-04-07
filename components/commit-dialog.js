@@ -11,34 +11,25 @@ Vue.component('commit-dialog', {
   ],
   data: function () {
     return {
-      checkedFiles: this.files.map(file => file.path()),
       description: ''
     };
   },
   methods: {
+    stageFile: async function (file) {
+      await this.$git.stageFile(this.activeRepository.path, file);
+      this.$emit('statusChanged');
+    },
+    unstageFile: async function (file) {
+      await this.$git.unstageFile(this.activeRepository.path, file);
+      this.$emit('statusChanged');
+    },
     closeDialog: function () {
       this.$store.commit('showCommitDialog', false)
     },
     commit: async function () {
-      if (this.checkedFiles.length === 0) return;
-
-      // Using the command-line client, because NodeGit is too flakey :/
-      const child = execFile(
-        'git',
-        ['commit', '-m', this.description, '--', ...this.checkedFiles],
-        {
-          cwd: this.activeRepository.path,
-          windowsHide: true
-        },
-        (error) => {
-          if (error) {
-            alert(error);
-          } else {
-            this.$store.commit('showCommitDialog', false)
-            this.$emit('statusChanged');
-          }
-        }
-      );
+      await this.$git.commit(this.activeRepository.path, this.description);
+      this.$store.commit('showCommitDialog', false);
+      this.$emit('statusChanged');
     }
   },
   template: `
@@ -51,13 +42,29 @@ Vue.component('commit-dialog', {
           <textarea placeholder="Description" v-model="description"/>
         </div>
         <div class="files">
-          <label v-for="file in files" class="file">
-           <input type="checkbox" v-bind:value="file.path()" v-model="checkedFiles"> {{ file.path() }}
-          </label>
+          <div class="index-files">
+            <label v-for="file in files.index" v-bind:key="file.path()" class="file">
+              <input
+                type="checkbox"
+                v-bind:value="file.path()"
+                v-on:click="unstageFile(file)"
+                checked>
+              {{ file.path() }}
+            </label>
+          </div>
+          <div class="working-files">
+            <label v-for="file in files.working" v-bind:key="file.path()" class="file">
+              <input
+                type="checkbox"
+                v-bind:value="file.path()"
+                v-on:click="stageFile(file)">
+              {{ file.path() }}
+            </label>
+          </div>
         </div>
         <div class="buttons">
           <div class="cancel button" v-on:click="closeDialog">Cancel</div>
-          <div class="commit button" v-bind:class="checkedFiles.length === 0 && 'disabled'" v-on:click="commit">Commit</div>
+          <div class="commit button" v-bind:class="files.index.length === 0 && 'disabled'" v-on:click="commit">Commit</div>
         </div>
       </div>
     </div>
