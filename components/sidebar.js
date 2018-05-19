@@ -9,7 +9,7 @@ Vue.component('sidebar', {
  props: ['activeRepository'],
   computed: {
     repositories: function () {
-      return this.$store.state.repositories.filter(repository => !repository.removed);
+      return this.$store.getters.sortedRepositories
     }
   },
   methods: {
