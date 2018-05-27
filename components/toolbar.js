@@ -26,6 +26,9 @@ Vue.component('toolbar', {
   },
   template: `
     <div class="toolbar">
+      <span class="title">
+        <slot name="title" />
+      </span>
       <span
         v-for="button in buttons"
         v-bind:title="button.label"

@@ -201,7 +201,16 @@ let app = new Vue({
     ]">
       <link v-bind:href="theme.file" rel="stylesheet">
       <sidebar v-bind:activeRepository="activeRepository"/>
-      <toolbar v-bind:buttons="toolbarButtons"/>
+      <toolbar v-bind:buttons="toolbarButtons">
+        <template slot="title">
+          <span class="repository">{{ activeRepository.name }}</span>
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <line vector-effect="non-scaling-stroke" x1="0" y1="0" x2="100" y2="50" />
+            <line vector-effect="non-scaling-stroke" x1="0" y1="100" x2="100" y2="50" />
+          </svg>
+          <span class="branch">master</span>
+        </template>
+      </toolbar>
       <template v-if="activeRepository">
         <div v-on:wheel="scrollFiles">
           <file-list

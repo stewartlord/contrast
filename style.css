@@ -60,7 +60,6 @@ body {
   border: 2px solid transparent;
   color: #555;
   font-size: 1em;
-  font-weight: bold;
   line-height: 35px;
   text-align: center;
   text-transform: uppercase;
@@ -126,6 +125,12 @@ body {
   padding: 0 .875em;
   font-family: sans-serif;
 }
+.toolbar .title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
 .toolbar .button:first-child {
   padding-left: 0;
 }
@@ -165,6 +170,25 @@ body {
   background-color: #f5f5f5;
   border-bottom: 1px solid #ddd;
   text-align: right;
+}
+.app > .toolbar .title {
+  color: #555;
+}
+.app > .toolbar .repository,
+.app > .toolbar .branch {
+  display: block;
+  float: left;
+  box-sizing: border-box;
+  padding: .75em 1em 0;
+}
+.app > .toolbar svg {
+  display: block;
+  float: left;
+  height: 39px;
+  width: 15px;
+}
+.app > .toolbar svg line {
+  stroke: #ddd;
 }
 
 /* file lists */
@@ -555,6 +579,12 @@ body {
 .dark-theme.app > .toolbar {
   background-color: #333;
   border-bottom: 1px solid #111;
+}
+.dark-theme.app > .toolbar .title {
+  color: #ccc;
+}
+.dark-theme.app > .toolbar .title line {
+  stroke: #111;
 }
 .dark-theme .toolbar .button {
   color: #ccc;
