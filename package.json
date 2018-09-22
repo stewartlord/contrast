@@ -15,7 +15,7 @@
   "scripts": {
     "start": "electron . --dev",
     "pack": "build --dir",
-    "dist": "build"
+    "dist": "mkdir build; cp icon.png build/; build"
   },
   "bugs": {
     "url": "https://github.com/stewartlord/contrast/issues"
@@ -27,14 +27,14 @@
     "fs-extra": "^5.0.0",
     "highlights": "^3.0.0",
     "jquery": "^3.2.0",
-    "nodegit": "^0.20.3",
+    "nodegit": "0.22.2",
     "vue": "^2.3.3",
     "vuex": "^2.3.1",
     "vuex-persistedstate": "^2.0.0"
   },
   "devDependencies": {
     "electron": "^1.7.10",
-    "electron-builder": "^18.7.0",
+    "electron-builder": "20.27.1",
     "electron-rebuild": "^1.7.3"
   },
   "build": {
@@ -47,13 +47,13 @@
         {
           "type": "file",
           "x": 135,
-          "y": 265
+          "y": 365
         },
         {
           "type": "link",
           "path": "/Applications",
           "x": 405,
-          "y": 265
+          "y": 365
         }
       ]
     }
