@@ -41,6 +41,7 @@ let app = new Vue({
   },
   data: function () {
     return {
+      currentBranch: '',
       files: {
         index: [],
         working: []
@@ -67,8 +68,9 @@ let app = new Vue({
   },
   watch: {
     activeRepository: function (repository) {
-      // Anytime the repository changes, check its status
+      // Anytime the repository changes, check its status and branch
       this.getStatus();
+      this.getCurrentBranch();
     },
     repositories: function (newRepositories, oldRepositories) {
       // Anytime a repository is added, stat it
@@ -85,6 +87,10 @@ let app = new Vue({
     // Stat repos periodically (every 60s)
     this.statRepositories();
     setInterval(this.statRepositories, 1000 * 60);
+
+    // Check the current branch periodically (every 15s)
+    this.getCurrentBranch();
+    setInterval(this.getCurrentBranch, 1000 * 15);
 
     // Find all git repositories in the user's home directory
     let findRepoWorker = new Worker('workers/find-repos.js');
@@ -110,6 +116,17 @@ let app = new Vue({
         if (repository === this.activeRepository) {
           this.files = files;
         }
+      } catch (error) {
+        quiet ? console.error(error) : alert(error);
+      }
+    },
+    getCurrentBranch: async function (repository, quiet = false) {
+      repository = repository || this.activeRepository;
+      if (!repository) return;
+      try {
+        const repo   = await NodeGit.Repository.open(repository.path);
+        const branch = await repo.getCurrentBranch();
+        this.currentBranch = branch.shorthand();
       } catch (error) {
         quiet ? console.error(error) : alert(error);
       }
@@ -202,13 +219,13 @@ let app = new Vue({
       <link v-bind:href="theme.file" rel="stylesheet">
       <sidebar v-bind:activeRepository="activeRepository"/>
       <toolbar v-bind:buttons="toolbarButtons">
-        <template slot="title">
+        <template v-if="activeRepository" slot="title">
           <span class="repository">{{ activeRepository.name }}</span>
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
             <line vector-effect="non-scaling-stroke" x1="0" y1="0" x2="100" y2="50" />
             <line vector-effect="non-scaling-stroke" x1="0" y1="100" x2="100" y2="50" />
           </svg>
-          <span class="branch">master</span>
+          <span class="branch">{{ currentBranch }}</span>
         </template>
       </toolbar>
       <template v-if="activeRepository">
