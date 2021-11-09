@@ -27,15 +27,15 @@
     "fs-extra": "^5.0.0",
     "highlights": "^3.0.0",
     "jquery": "^3.2.0",
-    "nodegit": "0.22.2",
+    "nodegit": "git+https://github.com/nodegit/nodegit.git#4561dcb7c120474a4553baa27e4c4c2f4be23a2b",
     "vue": "^2.3.3",
     "vuex": "^2.3.1",
     "vuex-persistedstate": "^2.0.0"
   },
   "devDependencies": {
-    "electron": "^1.7.10",
-    "electron-builder": "20.27.1",
-    "electron-rebuild": "^1.7.3"
+    "electron": "15.3.1",
+    "electron-builder": "22.13.1",
+    "electron-rebuild": "3.2.4"
   },
   "build": {
     "appId": "contrast",
